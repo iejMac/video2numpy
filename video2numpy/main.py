@@ -1,4 +1,4 @@
-"""python template"""
+"""video2numpy"""
 
 
 def hello_world(message):

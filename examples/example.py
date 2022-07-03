@@ -1,3 +1,3 @@
-from python_template import hello_world
+from video2numpy import hello_world
 
 hello_world("hi")
