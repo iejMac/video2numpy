@@ -8,7 +8,7 @@ VID_CHUNK_SIZE = 2
 QUALITY = "360p"
 
 
-def video2numpy(src, dest='', take_every_nth=1):
+def video2numpy(src, dest='', take_every_nth=1, resize_size=224):
     """
         TODO: write docstring
     """
@@ -21,7 +21,7 @@ def video2numpy(src, dest='', take_every_nth=1):
     else:
         fnames = src
 
-    reader = FrameReader(fnames, VID_CHUNK_SIZE, take_every_nth)
+    reader = FrameReader(fnames, VID_CHUNK_SIZE, take_every_nth, resize_size)
     reader.start_reading()
 
     for block, ind_dict in reader:

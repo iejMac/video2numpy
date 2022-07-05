@@ -18,7 +18,7 @@ if __name__ == "__main__":
   VID_CHUNK_SIZE = 4
   take_every_nth = 1
 
-  reader = FrameReader(fnames, VID_CHUNK_SIZE, take_every_nth)
+  reader = FrameReader(fnames, VID_CHUNK_SIZE, take_every_nth, 224)
   print(f"Starting reading process...")
 
   t0 = time.perf_counter()
