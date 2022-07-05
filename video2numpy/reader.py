@@ -21,12 +21,18 @@ class FrameReader:
         self,
         fnames,
         chunk_size=1,
-        take_every_nth=1
+        take_every_nth=1,
+        auto_release=True,
     ):
+        """
+          Describe args
+        """
+        self.auto_release = auto_release
         self.info_q = SimpleQueue()
         self.read_proc = Process(target=read_vids, args=(fnames, self.info_q, chunk_size, take_every_nth))
 
         self.empty = False
+        self.shms = []
 
     def __iter__(self):
         return self
@@ -41,9 +47,7 @@ class FrameReader:
             shm = shared_memory.SharedMemory(name=info["shm_name"])
             block = np.ndarray(info["full_shape"], dtype=np.uint8, buffer=shm.buf)
 
-            # Clean up shm
-            shm.close()
-            shm.unlink()
+            self.shms.append(shm) # close and unlink when done using blocks
 
             return block, info["ind_dict"]
         raise StopIteration 
@@ -54,6 +58,13 @@ class FrameReader:
     def finish_reading(self):
         self.empty = True
         self.read_proc.join()
+        if self.auto_release:
+            self.release_memory()
+    def release_memory(self):
+        for shm in self.shms:
+            shm.close()
+            shm.unlink()
+        self.shms = []
 
 
 def read_vids(vids, queue, chunk_size=1, take_every_nth=1):

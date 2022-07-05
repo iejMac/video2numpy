@@ -1,3 +1,3 @@
 """video2numpy"""
 
-from video2numpy.main import hello_world
+from .video2numpy import video2numpy

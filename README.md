@@ -9,16 +9,9 @@ A nice template to start with
 
 pip install video2numpy
 
-## Python examples
-
-Checkout these examples to call this as a lib:
-* [example.py](examples/example.py)
-
 ## API
 
 This module exposes a single function `hello_world` which takes the same arguments as the command line tool:
-
-* **message** the message to print. (*required*)
 
 ## For development
 

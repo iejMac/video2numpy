@@ -27,9 +27,9 @@ if __name__ == "__main__":
   all_frames = 0
 
   for block, ind_dict in reader:
-    print(block.shape)
     all_frames += block.shape[0]
 
+  reader.finish_reading()
   
   read_time = time.perf_counter() - t0
   print(f"FPS: {all_frames/read_time}")
