@@ -36,7 +36,7 @@ class Reader:
             info = self.info_q.get()
 
             if isinstance(info, str):
-                self.empty = True
+                self.finish_reading()
                 raise StopIteration
 
             shm = shared_memory.SharedMemory(name=info["shm_name"])
@@ -49,9 +49,11 @@ class Reader:
             return block, info["ind_dict"]
         raise StopIteration 
 
-    def start(self):
+    def start_reading(self):
+        self.empty = False
         self.read_proc.start()
-    def join(self):
+    def finish_reading(self):
+        self.empty = True
         self.read_proc.join()
 
 

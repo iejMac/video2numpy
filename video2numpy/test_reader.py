@@ -22,7 +22,7 @@ if __name__ == "__main__":
   print(f"Starting reading process...")
 
   t0 = time.perf_counter()
-  reader.start()
+  reader.start_reading()
 
   all_frames = 0
 
@@ -33,5 +33,3 @@ if __name__ == "__main__":
   
   read_time = time.perf_counter() - t0
   print(f"FPS: {all_frames/read_time}")
-
-  reader.join()
