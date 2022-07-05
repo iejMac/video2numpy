@@ -6,12 +6,82 @@
 A nice template to start with
 
 ## Install
-
+```
 pip install video2numpy
+```
+
+Or build from source:
+```
+python setup.py install
+```
+
+## Usage
+```
+NAME
+    video2numpy - Read frames from videos and save as numpy arrays
+
+SYNOPSIS
+    video2numpy SRC <flags>
+
+DESCRIPTION
+    Input:
+      src:
+        str: path to mp4 file
+        str: youtube link
+        str: path to txt file with multiple mp4's or youtube links
+        list: list with multiple mp4's or youtube links
+      dest:
+        str: directory where to save frames to
+        None: dest = src + .npy
+      take_every_nth:
+        int: only take every nth frame
+      resize_size:
+        int: new pixel height and width of resized frame
+
+POSITIONAL ARGUMENTS
+    SRC
+
+FLAGS
+    --dest=DEST
+        Default: ''
+    --take_every_nth=TAKE_EVERY_NTH
+        Default: 1
+    --resize_size=RESIZE_SIZE
+        Default: 224
+```
 
 ## API
 
-This module exposes a single function `hello_world` which takes the same arguments as the command line tool:
+This module exposes a single function `video2numpy` which takes the same arguments as the command line tool:
+```python
+import glob
+from video2numpy import video2numpy
+
+VIDS = glob.glob("some/path/my_videos/*.mp4")
+FRAME_DIR = "some/path/my_embeddings"
+take_every_5 = 5
+
+video2numpy(VIDS, FRAME_DIR, take_every_5)
+```
+
+You can alse directly use the reader and iterate over frame blocks yourself:
+```python
+import glob
+from video2numpy.reader import FrameReader
+
+VIDS = glob.glob("some/path/my_videos/*.mp4")
+take_every_5 = 5
+
+reader = FrameReader(VIDS, FRAME_DIR, take_every_5)
+
+for block, ind_dict in reader:
+		for dst_name, inds in ind_dict.items():
+				i0, it = inds
+				vid_frames = block[i0:it]
+				
+				# do something with vid_frames
+				...
+```
 
 ## For development
 
