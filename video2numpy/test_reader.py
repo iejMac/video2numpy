@@ -6,7 +6,7 @@ import numpy as np
 from multiprocessing import SimpleQueue, Process, shared_memory
 from torch.utils.data import DataLoader
 
-from reader import read_vids, Reader
+from reader import FrameReader
 
 if __name__ == "__main__":
   print("Starting program...")
@@ -18,7 +18,7 @@ if __name__ == "__main__":
   VID_CHUNK_SIZE = 4
   take_every_nth = 1
 
-  reader = Reader(read_vids, fnames, VID_CHUNK_SIZE, take_every_nth)
+  reader = FrameReader(fnames, VID_CHUNK_SIZE, take_every_nth)
   print(f"Starting reading process...")
 
   t0 = time.perf_counter()

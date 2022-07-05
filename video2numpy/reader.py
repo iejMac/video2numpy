@@ -13,19 +13,18 @@ POSTPROC_SHAPE = (224, 224, 3)
 IMG_SIDE = 224
 
 
-class Reader:
+class FrameReader:
     """
     Iterates over frame blocks returned by read_vids function
     """
     def __init__(
         self,
-        read_func,
         fnames,
         chunk_size=1,
         take_every_nth=1
     ):
         self.info_q = SimpleQueue()
-        self.read_proc = Process(target=read_func, args=(fnames, self.info_q, chunk_size, take_every_nth))
+        self.read_proc = Process(target=read_vids, args=(fnames, self.info_q, chunk_size, take_every_nth))
 
         self.empty = False
 
