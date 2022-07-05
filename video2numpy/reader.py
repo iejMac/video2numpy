@@ -6,11 +6,11 @@ import numpy as np
 from multiprocessing import shared_memory, SimpleQueue, Process
 from multiprocessing.pool import ThreadPool
 
+from resize import Resizer
+
 
 QUALITY = "360p"
 THREAD_COUNT = 12
-POSTPROC_SHAPE = (224, 224, 3)
-IMG_SIDE = 224
 
 
 class FrameReader:
@@ -67,7 +67,7 @@ class FrameReader:
         self.shms = []
 
 
-def read_vids(vids, queue, chunk_size=1, take_every_nth=1):
+def read_vids(vids, queue, chunk_size=1, take_every_nth=1, resize_size=224):
     """
     Reads list of videos, saves frames to /dev/shm, and passes reading info through
     multiprocessing queue
@@ -77,6 +77,7 @@ def read_vids(vids, queue, chunk_size=1, take_every_nth=1):
       queue - multiprocessing queue used to pass frame block information
       chunk_size - size of chunk of videos to take for parallel reading
       take_every_nth - offset between frames of video (to lower FPS)
+      resize_size - new pixel height and width of resized frame
     """
 
     while len(vids) > 0:
@@ -115,34 +116,19 @@ def read_vids(vids, queue, chunk_size=1, take_every_nth=1):
                     print(f"Error: {vid} not opened")
                     return
 
+                width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+                height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+                frame_shape = [height, width, 3]
+
+                resizer = Resizer(frame_shape, resize_size)
+
                 ret = True
-                frame_shape = None
                 ind = 0
                 while ret:
                     ret, frame = cap.read()
-
                     if ret and (ind % take_every_nth == 0):
-                        # NOTE: HACKY
-                        if frame_shape is None:
-                            cur_shape = list(frame.shape)[:2]
-                            sm_ind, bg_ind = (0, 1) if cur_shape[0] < cur_shape[1] else (1, 0)
-                            ratio = cur_shape[sm_ind] / IMG_SIDE
-                            n_shape = cur_shape
-                            n_shape[sm_ind] = IMG_SIDE
-                            n_shape[bg_ind] = max(int(n_shape[bg_ind] / ratio), IMG_SIDE)  # safety for rounding errors
-                            frame_shape = tuple(n_shape)
-
-                        # Resize:
-                        frame = cv2.resize(frame, (frame_shape[1], frame_shape[0]), interpolation=cv2.INTER_CUBIC)
-                        # Center crop:
-                        my = int((frame_shape[0] - IMG_SIDE) / 2)
-                        mx = int((frame_shape[1] - IMG_SIDE) / 2)
-
-                        frame = frame[my : frame.shape[0] - my, mx : frame.shape[1] - mx]
-                        frame = frame[:IMG_SIDE, :IMG_SIDE]
-
+                        frame = resizer(frame)
                         video_frames.append(frame)
-
                     ind += 1
 
                 frams[dst_name] = video_frames
@@ -156,7 +142,7 @@ def read_vids(vids, queue, chunk_size=1, take_every_nth=1):
             ind_dict[k] = (frame_count, frame_count + len(v))
             frame_count += len(v)
 
-        full_shape = (frame_count, *POSTPROC_SHAPE)
+        full_shape = (frame_count, resize_size, resize_size, 3)
 
         mem_size = frame_count * full_shape[0] * full_shape[1] * full_shape[2]
         shm = shared_memory.SharedMemory(create=True, size=mem_size)
