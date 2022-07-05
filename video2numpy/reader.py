@@ -6,7 +6,7 @@ import numpy as np
 from multiprocessing import shared_memory, SimpleQueue, Process
 from multiprocessing.pool import ThreadPool
 
-from resize import Resizer
+from .resize import Resizer
 
 
 QUALITY = "360p"
