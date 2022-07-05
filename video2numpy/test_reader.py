@@ -1,11 +1,12 @@
 import os
 import glob
+import time
 import numpy as np
 
 from multiprocessing import SimpleQueue, Process, shared_memory
 from torch.utils.data import DataLoader
 
-from reader_new import read_vids, Reader
+from reader import read_vids, Reader
 
 if __name__ == "__main__":
   print("Starting program...")
@@ -15,17 +16,22 @@ if __name__ == "__main__":
   print(f"Reading {len(fnames)} videos...")
 
   VID_CHUNK_SIZE = 4
-  take_every_nth = 10
+  take_every_nth = 1
 
-  # vr_proc = Process(target=read_vids, args=(fnames, info_q, VID_CHUNK_SIZE, take_every_nth))
   reader = Reader(read_vids, fnames, VID_CHUNK_SIZE, take_every_nth)
   print(f"Starting reading process...")
+
+  t0 = time.perf_counter()
   reader.start()
 
-  while not reader.empty:
-    block, ind_dict = reader.next_block()
+  all_frames = 0
 
-    if block is not None:
-      print(block.shape)
+  for block, ind_dict in reader:
+    print(block.shape)
+    all_frames += block.shape[0]
+
+  
+  read_time = time.perf_counter() - t0
+  print(f"FPS: {all_frames/read_time}")
 
   reader.join()

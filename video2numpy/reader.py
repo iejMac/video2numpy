@@ -3,7 +3,7 @@ import cv2
 import youtube_dl
 import numpy as np
 
-from multiprocessing import shared_memory
+from multiprocessing import shared_memory, SimpleQueue, Process
 from multiprocessing.pool import ThreadPool
 
 
@@ -13,7 +13,49 @@ POSTPROC_SHAPE = (224, 224, 3)
 IMG_SIDE = 224
 
 
-def read_vids(vids, queue, termination_queue=None, chunk_size=1, take_every_nth=1):
+class Reader:
+    """
+    Iterates over frame blocks returned by read_vids function
+    """
+    def __init__(
+        self,
+        read_func,
+        fnames,
+        chunk_size=1,
+        take_every_nth=1
+    ):
+        self.info_q = SimpleQueue()
+        self.read_proc = Process(target=read_func, args=(fnames, self.info_q, chunk_size, take_every_nth))
+
+        self.empty = False
+
+    def __iter__(self):
+        return self
+    def __next__(self):
+        if not self.empty:
+            info = self.info_q.get()
+
+            if isinstance(info, str):
+                self.empty = True
+                raise StopIteration
+
+            shm = shared_memory.SharedMemory(name=info["shm_name"])
+            block = np.ndarray(info["full_shape"], dtype=np.uint8, buffer=shm.buf)
+
+            # Clean up shm
+            shm.close()
+            shm.unlink()
+
+            return block, info["ind_dict"]
+        raise StopIteration 
+
+    def start(self):
+        self.read_proc.start()
+    def join(self):
+        self.read_proc.join()
+
+
+def read_vids(vids, queue, chunk_size=1, take_every_nth=1):
     """
     Reads list of videos, saves frames to /dev/shm, and passes reading info through
     multiprocessing queue
@@ -21,12 +63,9 @@ def read_vids(vids, queue, termination_queue=None, chunk_size=1, take_every_nth=
     Input:
       vids - list of videos (either path or youtube link)
       queue - multiprocessing queue used to pass frame block information
-      termination_queue - queue used to pass information that all frames are mapped so
-                          SharedMemory objects can be unlinked
       chunk_size - size of chunk of videos to take for parallel reading
       take_every_nth - offset between frames of video (to lower FPS)
     """
-    shms = []
 
     while len(vids) > 0:
         vid_chunk = vids[:chunk_size]
@@ -119,21 +158,9 @@ def read_vids(vids, queue, termination_queue=None, chunk_size=1, take_every_nth=
         info = {
             "ind_dict": ind_dict,
             "shm_name": shm.name,
-            "frame_count": frame_count,
+            "full_shape": full_shape,
         }
-
-        shms.append(shm)
         shm.close()
-
         queue.put(info)
 
     queue.put("DONE_READING")
-
-    # Wait for DONE_MAPPING
-    if termination_queue is not None:
-        msg = termination_queue.get()
-        if msg != "DONE_MAPPING":
-            print("Error: Message wrong message received")
-
-    for shm in shms:
-        shm.unlink()
