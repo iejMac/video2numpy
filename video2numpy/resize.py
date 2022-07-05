@@ -8,6 +8,10 @@ import cv2
 
 
 class Resizer:
+    """
+    Class for resizing frames to uniform shape
+    """
+
     def __init__(self, from_shape, to_size):
         self.from_shape = from_shape
         self.to_size = to_size
@@ -29,6 +33,6 @@ class Resizer:
         mx = int((self.resize_shape[1] - self.to_size) / 2)
 
         cropped = resized[my : resized.shape[0] - my, mx : resized.shape[1] - mx]
-        cropped = cropped[:self.to_size, :self.to_size] # safety from approx.
+        cropped = cropped[: self.to_size, : self.to_size]  # safety from approx.
 
         return cropped

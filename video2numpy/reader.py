@@ -17,6 +17,7 @@ class FrameReader:
     """
     Iterates over frame blocks returned by read_vids function
     """
+
     def __init__(
         self,
         fnames,
@@ -26,7 +27,7 @@ class FrameReader:
         auto_release=True,
     ):
         """
-          Describe args
+        Describe args
         """
         self.auto_release = auto_release
         self.info_q = SimpleQueue()
@@ -37,6 +38,7 @@ class FrameReader:
 
     def __iter__(self):
         return self
+
     def __next__(self):
         if not self.empty:
             info = self.info_q.get()
@@ -48,19 +50,21 @@ class FrameReader:
             shm = shared_memory.SharedMemory(name=info["shm_name"])
             block = np.ndarray(info["full_shape"], dtype=np.uint8, buffer=shm.buf)
 
-            self.shms.append(shm) # close and unlink when done using blocks
+            self.shms.append(shm)  # close and unlink when done using blocks
 
             return block, info["ind_dict"]
-        raise StopIteration 
+        raise StopIteration
 
     def start_reading(self):
         self.empty = False
         self.read_proc.start()
+
     def finish_reading(self):
         self.empty = True
         self.read_proc.join()
         if self.auto_release:
             self.release_memory()
+
     def release_memory(self):
         for shm in self.shms:
             shm.close()
