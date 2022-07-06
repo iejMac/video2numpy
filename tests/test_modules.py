@@ -1,4 +1,3 @@
-
 import glob
 
 import numpy as np
@@ -14,7 +13,7 @@ FRAME_COUNTS = {
 
 
 def test_reader():
-    vids = glob.glob("tests/test_videos/*.mp4") 
+    vids = glob.glob("tests/test_videos/*.mp4")
 
     vid_chunk_size = 1
     take_every_nth = 1

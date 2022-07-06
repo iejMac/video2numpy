@@ -68,18 +68,26 @@ You can alse directly use the reader and iterate over frame blocks yourself:
 ```python
 import glob
 from video2numpy.reader import FrameReader
+from video2numpy.utils import split_block
 
 VIDS = glob.glob("some/path/my_videos/*.mp4")
 take_every_5 = 5
+resize_size = 300
 
-reader = FrameReader(VIDS, FRAME_DIR, take_every_5)
+reader = FrameReader(VIDS, FRAME_DIR, take_every_5, resize_size)
 
 for block, ind_dict in reader:
-    for dst_name, inds in ind_dict.items():
-        i0, it = inds
-        vid_frames = block[i0:it]
-        
-        # do something with vid_frames
+
+    if you need to process the block in large batches (f.e. good for ML):
+        proc_block = ml_model(block)
+    else:
+        proc_block = block
+
+    # then you can separate the video frames into a dict easily with split_block from utils:
+    split_up_vids = split_block(proc_block, ind_dict)
+
+    for vid_name, proc_frames in split_up_vids.items():
+        # do something with proc_frame of shape (n_frames, 300, 300, 3)
         ...
 ```
 
