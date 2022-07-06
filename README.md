@@ -75,12 +75,12 @@ take_every_5 = 5
 reader = FrameReader(VIDS, FRAME_DIR, take_every_5)
 
 for block, ind_dict in reader:
-		for dst_name, inds in ind_dict.items():
-				i0, it = inds
-				vid_frames = block[i0:it]
-				
-				# do something with vid_frames
-				...
+    for dst_name, inds in ind_dict.items():
+        i0, it = inds
+        vid_frames = block[i0:it]
+        
+        # do something with vid_frames
+        ...
 ```
 
 ## For development
