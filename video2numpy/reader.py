@@ -17,6 +17,7 @@ class FrameReader:
     """
     Iterates over frame blocks returned by read_vids function
     """
+
     def __init__(
         self,
         fnames,
@@ -31,10 +32,10 @@ class FrameReader:
           chunk_size - how many videos to process at once
           take_every_nth - offset between frames we take
           resize_size - pixel height and width of target output shape
-          auto_release - FrameReader iterator automatically releases shm buffers after 
+          auto_release - FrameReader iterator automatically releases shm buffers after
                          done iterating. This means the returned frame block or any slices
                          of it won't work out of the loop. If you plan on using it out of
-                         the loop then set this to False and remember to manually deallocate 
+                         the loop then set this to False and remember to manually deallocate
                          memory by calling release_memory once you're done.
         """
         self.auto_release = auto_release

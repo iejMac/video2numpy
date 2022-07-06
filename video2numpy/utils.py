@@ -4,7 +4,7 @@
 def split_block(block, ind_dict):
     """
     separate block into individual videos using ind_dict
-    
+
     Input:
       block - numpy array returned from FrameReader or some derivative of it
               with the same batch dimension order
