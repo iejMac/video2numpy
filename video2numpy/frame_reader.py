@@ -49,6 +49,12 @@ class FrameReader:
                 self.finish_reading()
                 raise StopIteration
 
+            if self.auto_release and len(self.shms) > 0:
+                last_shm = self.shms.pop(0)
+                print(last_shm.name)
+                last_shm.close()
+                last_shm.unlink()
+
             shm = shared_memory.SharedMemory(name=info["shm_name"])
             block = np.ndarray(info["full_shape"], dtype=np.uint8, buffer=shm.buf)
 
