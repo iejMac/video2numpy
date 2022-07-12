@@ -25,11 +25,12 @@ class FrameReader:
           chunk_size - how many videos to process at once
           take_every_nth - offset between frames we take
           resize_size - pixel height and width of target output shape
-          auto_release - FrameReader iterator automatically releases shm buffers after
-                         done iterating. This means the returned frame block or any slices
-                         of it won't work out of the loop. If you plan on using it out of
-                         the loop then set this to False and remember to manually deallocate
-                         memory by calling release_memory once you're done.
+          auto_release - FrameReader iterator automatically releases shm buffers in next
+                         iteration. This means the returned frame block or any slices
+                         of it won't work in iterations following the one where it was returned.
+                         If you plan on using it out of the iteration set this to False and
+                         remember to keep a reference to the array and manually deallocate it
+                         by calling release_memory once you're done.
         """
         self.auto_release = auto_release
         self.info_q = SimpleQueue()
@@ -48,6 +49,11 @@ class FrameReader:
             if isinstance(info, str):
                 self.finish_reading()
                 raise StopIteration
+
+            if self.auto_release and len(self.shms) > 0:
+                last_shm = self.shms.pop(0)
+                last_shm.close()
+                last_shm.unlink()
 
             shm = shared_memory.SharedMemory(name=info["shm_name"])
             block = np.ndarray(info["full_shape"], dtype=np.uint8, buffer=shm.buf)
@@ -70,5 +76,8 @@ class FrameReader:
     def release_memory(self):
         for shm in self.shms:
             shm.close()
-            shm.unlink()
+            try:
+                shm.unlink()
+            except FileNotFoundError:
+                print(f"Warning: Tried unlinking shared_memory block '{shm.name}' but file wasn't found")
         self.shms = []
