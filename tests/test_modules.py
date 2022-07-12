@@ -2,8 +2,8 @@ import glob
 
 import numpy as np
 
-from video2numpy.reader import FrameReader
-from video2numpy.resize import Resizer
+from video2numpy.frame_reader import FrameReader
+from video2numpy.resizer import Resizer
 
 
 FRAME_COUNTS = {

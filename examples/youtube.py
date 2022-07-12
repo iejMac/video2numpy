@@ -1,6 +1,6 @@
 import cv2
 
-from video2numpy.reader import FrameReader
+from video2numpy.frame_reader import FrameReader
 from video2numpy.utils import split_block
 
 if __name__ == "__main__":

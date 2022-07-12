@@ -67,7 +67,7 @@ video2numpy(VIDS, FRAME_DIR, take_every_5)
 You can alse directly use the reader and iterate over frame blocks yourself:
 ```python
 import glob
-from video2numpy.reader import FrameReader
+from video2numpy.frame_reader import FrameReader
 from video2numpy.utils import split_block
 
 VIDS = glob.glob("some/path/my_videos/*.mp4")

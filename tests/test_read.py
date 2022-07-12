@@ -9,14 +9,16 @@ from video2numpy import video2numpy
 FRAME_COUNTS = {
     "vid1.mp4": 56,
     "vid2.mp4": 134,
-    "https://www.youtube.com/watch?v=EKtBQbK4IX0": 78,
+    "https://www.youtube.com/watch?v=a8DM-tD9w2I": 20,
 }
 
 
 def test_read():
     test_path = "tests/test_videos"
+    take_en = 2
+    rs = 100
     with tempfile.TemporaryDirectory() as tmpdir:
-        video2numpy(os.path.join(test_path, "test_list.txt"), tmpdir, take_every_nth=2, resize_size=100)
+        video2numpy(os.path.join(test_path, "test_list.txt"), tmpdir, take_every_nth=take_en, resize_size=rs)
         for vid in FRAME_COUNTS.keys():
             if vid.endswith(".mp4"):
                 ld = vid[:-4] + ".npy"
@@ -24,5 +26,5 @@ def test_read():
                 ld = vid.split("=")[-1] + ".npy"
 
             frames = np.load(os.path.join(tmpdir, ld))
-            assert frames.shape[0] == FRAME_COUNTS[vid] // 2  # frame count
-            assert frames.shape[1:] == (100, 100, 3)  # embed dim
+            assert frames.shape[0] == FRAME_COUNTS[vid] // take_en  # frame count
+            assert frames.shape[1:] == (rs, rs, 3)  # embed dim
