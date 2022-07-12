@@ -1,6 +1,7 @@
 """uses cv2 to read frames from video."""
 import cv2
 import numpy as np
+import youtube_dl
 
 from multiprocessing import shared_memory
 from multiprocessing.pool import ThreadPool
