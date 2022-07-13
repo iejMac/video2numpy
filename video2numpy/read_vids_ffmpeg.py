@@ -52,7 +52,7 @@ def read_vids(vids, queue, chunk_size=1, take_every_nth=1, resize_size=224):
                         .output("pipe:", format="rawvideo", pix_fmt="rgb24", loglevel="error")
                         .run(capture_stdout=True)
                     )
-                except ffmpeg._run.Error:
+                except ffmpeg._run.Error:  # pylint: disable=protected-access
                     print(f"Error: couldn't read video {vid}")
                     return
 
