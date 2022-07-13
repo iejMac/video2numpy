@@ -6,8 +6,6 @@ import numpy as np
 from multiprocessing import shared_memory
 from multiprocessing.pool import ThreadPool
 
-from .resizer import Resizer
-
 
 QUALITY = "360p"
 THREAD_COUNT = 12
@@ -44,6 +42,7 @@ def read_vids(vids, queue, chunk_size=1, take_every_nth=1, resize_size=224):
                 nw, nh = (-1, 224) if width > height else (224, -1)
 
                 dst_name = vid[:-4].split("/")[-1] + ".npy"
+
                 try:
                     out, _ = (
                         ffmpeg.input(vid)
@@ -53,7 +52,7 @@ def read_vids(vids, queue, chunk_size=1, take_every_nth=1, resize_size=224):
                         .output("pipe:", format="rawvideo", pix_fmt="rgb24", loglevel="error")
                         .run(capture_stdout=True)
                     )
-                except Exception:
+                except ffmpeg._run.Error:
                     print(f"Error: couldn't read video {vid}")
                     return
 
