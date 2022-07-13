@@ -29,8 +29,7 @@ class FrameReader:
                          iteration. This means the returned frame block or any slices
                          of it won't work in iterations following the one where it was returned.
                          If you plan on using it out of the iteration set this to False and
-                         remember to keep a reference to the array and manually deallocate it
-                         by calling release_memory once you're done.
+                         remember to manually deallocate it by calling release_memory once you're done.
         """
         self.auto_release = auto_release
         self.info_q = SimpleQueue()

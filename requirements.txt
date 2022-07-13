@@ -1,5 +1,5 @@
 numpy>=1.19.5,<2
 fire>=0.4.0,<0.5.0
-ffmpeg
+ffmpeg-python
 opencv-python
 youtube_dl
