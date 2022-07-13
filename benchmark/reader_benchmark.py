@@ -17,27 +17,17 @@ def parse_args():
     parser.add_argument(
         "--name",
         type=str,
-        default="default", # TODO: maybe find nice way of getting reading type (cv2)
-        help="For unique output graph file name"
+        default="default",  # TODO: maybe find nice way of getting reading type (cv2)
+        help="For unique output graph file name",
     )
-    parser.add_argument(
-        "--chunk_size",
-        type=int,
-        default=50,
-        help="How many videos to try to read at once"
-    )
-    parser.add_argument(
-        "--resize_size",
-        type=int,
-        default=224,
-        help="Resize frames to resize_size x resize_size"
-    )
+    parser.add_argument("--chunk_size", type=int, default=50, help="How many videos to try to read at once")
+    parser.add_argument("--resize_size", type=int, default=224, help="Resize frames to resize_size x resize_size")
     parser.add_argument(
         "--thread_count",
         type=int,
-        default=6, # TODO: find way of getting default automatically
-        help="How many threads to use for video chunk reading"
-    ) 
+        default=6,  # TODO: find way of getting default automatically
+        help="How many threads to use for video chunk reading",
+    )
     args = parser.parse_args()
     return args
 
@@ -51,13 +41,13 @@ def benchmark_reading(vids, chunk_size, take_en, resize_size, thread_count):
         thread_count=thread_count,
         auto_release=True,
     )
-    reader.start_reading() 
+    reader.start_reading()
 
     t0 = time.perf_counter()
 
     count = 0
     for block, ind_dict in reader:
-        block[0,0,0,0] # assert no Segmentation fault
+        block[0, 0, 0, 0]  # assert no Segmentation fault
         count += block.shape[0]
 
     read_time = time.perf_counter() - t0
@@ -72,7 +62,7 @@ if __name__ == "__main__":
 
     print(f"Benchmarking {args.name} on {len(vids)} videos...")
 
-    video_fps = [1, 3, 5, 10, 25] # tested variable
+    video_fps = [1, 3, 5, 10, 25]  # tested variable
     chunk_size = args.chunk_size
     resize_size = args.resize_size
     thread_count = args.thread_count
@@ -81,14 +71,8 @@ if __name__ == "__main__":
 
     results = []
     for fps in video_fps:
-        ten = int(CONST_VID_FPS/fps)
-        samp_per_s, _, _ = benchmark_reading(
-            vids,
-            chunk_size,
-            ten,
-            resize_size,
-            thread_count
-        )
+        ten = int(CONST_VID_FPS / fps)
+        samp_per_s, _, _ = benchmark_reading(vids, chunk_size, ten, resize_size, thread_count)
         results.append(samp_per_s)
 
     plt.plot(video_fps, results)

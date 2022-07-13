@@ -35,7 +35,16 @@ class FrameReader:
         """
         self.auto_release = auto_release
         self.info_q = SimpleQueue()
-        self.read_proc = Process(target=read_vids, args=(fnames, self.info_q, chunk_size, take_every_nth, resize_size, thread_count))
+
+        read_args = (
+            fnames,
+            self.info_q,
+            chunk_size,
+            take_every_nth,
+            resize_size,
+            thread_count,
+        )
+        self.read_proc = Process(target=read_vids, args=read_args)
 
         self.empty = False
         self.shms = []
