@@ -17,14 +17,16 @@ class FrameReader:
         chunk_size=1,
         take_every_nth=1,
         resize_size=224,
+        thread_count=8,
         auto_release=True,
     ):
         """
         Input:
-          fnames - list with youtube links or paths to mp4 files
-          chunk_size - how many videos to process at once
-          take_every_nth - offset between frames we take
-          resize_size - pixel height and width of target output shape
+          fnames - list with youtube links or paths to mp4 files.
+          chunk_size - how many videos to process at once.
+          take_every_nth - offset between frames we take.
+          resize_size - pixel height and width of target output shape.
+          thread_count - number of threads to distribute video chunk reading to.
           auto_release - FrameReader iterator automatically releases shm buffers in next
                          iteration. This means the returned frame block or any slices
                          of it won't work in iterations following the one where it was returned.
