@@ -44,15 +44,19 @@ def read_vids(vids, queue, chunk_size=1, take_every_nth=1, resize_size=224):
                 nw, nh = (-1, 224) if width > height else (224, -1)
 
                 dst_name = vid[:-4].split("/")[-1] + ".npy"
+                try:
+                    out, _ = (
+                        ffmpeg.input(vid)
+                        .filter("fps", fps=fps)
+                        .filter("scale", nw, nh)
+                        .filter("crop", w=224, h=224)
+                        .output("pipe:", format="rawvideo", pix_fmt="rgb24", loglevel="error")
+                        .run(capture_stdout=True)
+                    )
+                except Exception:
+                    print(f"Error: couldn't read video {vid}")
+                    return
 
-                out, _ = (
-                    ffmpeg.input(vid)
-                    .filter("fps", fps=fps)
-                    .filter("scale", nw, nh)
-                    .filter("crop", w=224, h=224)
-                    .output("pipe:", format="rawvideo", pix_fmt="rgb24", loglevel="error")
-                    .run(capture_stdout=True)
-                )
                 frame_count = int(len(out) / (224 * 224 * 3))  # can do this since dtype = np.uint8 (byte)
 
                 vid = np.frombuffer(out, np.uint8).reshape((frame_count, 224, 224, 3))
