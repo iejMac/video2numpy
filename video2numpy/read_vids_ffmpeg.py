@@ -8,10 +8,9 @@ from multiprocessing.pool import ThreadPool
 
 
 QUALITY = "360p"
-THREAD_COUNT = 12
 
 
-def read_vids(vids, queue, chunk_size=1, take_every_nth=1, resize_size=224):
+def read_vids(vids, queue, chunk_size=1, take_every_nth=1, resize_size=224, thread_count=8):
     """
     Reads list of videos, saves frames to /dev/shm, and passes reading info through
     multiprocessing queue
@@ -22,6 +21,7 @@ def read_vids(vids, queue, chunk_size=1, take_every_nth=1, resize_size=224):
       chunk_size - size of chunk of videos to take for parallel reading
       take_every_nth - offset between frames of video (to lower FPS)
       resize_size - new pixel height and width of resized frame
+      thread_count - number of threads to distribute video chunk reading to
     """
 
     while len(vids) > 0:
@@ -32,7 +32,7 @@ def read_vids(vids, queue, chunk_size=1, take_every_nth=1, resize_size=224):
 
         fps = int(25 / take_every_nth)
 
-        with ThreadPool(THREAD_COUNT) as pool:
+        with ThreadPool(thread_count) as pool:
 
             def get_frames(vid):
 
