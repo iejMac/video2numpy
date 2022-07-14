@@ -1,9 +1,10 @@
 # video2numpy
 [![pypi](https://img.shields.io/pypi/v/video2numpy.svg)](https://pypi.python.org/pypi/video2numpy)
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rom1504/video2numpy/blob/master/notebook/video2numpy.ipynb)
-[![Try it on gitpod](https://img.shields.io/badge/try-on%20gitpod-brightgreen.svg)](https://gitpod.io/#https://github.com/rom1504/video2numpy)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/iejMac/video2numpy/blob/master/notebook/video2numpy.ipynb)
+[![Try it on gitpod](https://img.shields.io/badge/try-on%20gitpod-brightgreen.svg)](https://gitpod.io/#https://github.com/iejMac/video2numpy)
 
-A nice template to start with
+Optimized library for large-scale extraction of frames and audio from video.
+
 
 ## Install
 ```
@@ -67,7 +68,7 @@ video2numpy(VIDS, FRAME_DIR, take_every_5)
 You can alse directly use the reader and iterate over frame blocks yourself:
 ```python
 import glob
-from video2numpy.reader import FrameReader
+from video2numpy.frame_reader import FrameReader
 from video2numpy.utils import split_block
 
 VIDS = glob.glob("some/path/my_videos/*.mp4")

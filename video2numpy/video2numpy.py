@@ -2,7 +2,7 @@
 import os
 import numpy as np
 
-from .reader import FrameReader
+from .frame_reader import FrameReader
 
 
 VID_CHUNK_SIZE = 2
