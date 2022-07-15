@@ -59,7 +59,7 @@ import glob
 from video2numpy import video2numpy
 
 VIDS = glob.glob("some/path/my_videos/*.mp4")
-FRAME_DIR = "some/path/my_embeddings"
+FRAME_DIR = "some/path/my_frames"
 take_every_5 = 5
 
 video2numpy(VIDS, FRAME_DIR, take_every_5)
@@ -75,7 +75,7 @@ VIDS = glob.glob("some/path/my_videos/*.mp4")
 take_every_5 = 5
 resize_size = 300
 
-reader = FrameReader(VIDS, FRAME_DIR, take_every_5, resize_size)
+reader = FrameReader(VIDS, take_every_5, resize_size)
 
 for block, ind_dict in reader:
 
