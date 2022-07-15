@@ -4,6 +4,7 @@ import numpy as np
 from multiprocessing import shared_memory, SimpleQueue, Process
 
 from .read_vids_cv2 import read_vids
+# from .read_vids_shm import read_vids
 
 
 class FrameReader:
