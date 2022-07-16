@@ -7,6 +7,7 @@ import typing
 from multiprocessing.shared_memory import SharedMemory
 
 
+# taken from: https://github.com/ClashLuke
 class SharedQueue:
     frame_mem: SharedMemory
     frame: np.ndarray

@@ -2,8 +2,8 @@
 import multiprocessing
 import numpy as np
 
-from read_vids_sq_cv2 import read_vids
-from shared_queue import SharedQueue
+from .read_vids_cv2 import read_vids
+from .shared_queue import SharedQueue
 
 
 class FrameReader:
@@ -35,7 +35,6 @@ class FrameReader:
 
         div_vids = [vids[int(len(vids) * i / workers):int(len(vids) * (i + 1) / workers)] for i in range(workers)]
         self.procs = [multiprocessing.Process(args=(work, worker_id, take_every_nth, resize_size, self.shared_queue.export()), daemon=True, target=read_vids) for worker_id, work in enumerate(div_vids)]
-
 
     def __iter__(self):
         return self

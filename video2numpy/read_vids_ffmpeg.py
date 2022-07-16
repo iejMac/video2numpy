@@ -4,10 +4,7 @@ import random
 import ffmpeg
 import numpy as np
 
-from multiprocessing import shared_memory
-from multiprocessing.pool import ThreadPool
-
-from shared_queue import SharedQueue
+from .shared_queue import SharedQueue
 
 
 QUALITY = "360p"
