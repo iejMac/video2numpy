@@ -51,7 +51,7 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, queue_export):
                 frame = resizer(frame)
                 video_frames.append(frame)
             ind += 1
-        queue.put(np.array(video_frames))
+        queue.put(np.array(video_frames), dst_name)
 
     random.Random(worker_id).shuffle(vids)
     for vid in vids:

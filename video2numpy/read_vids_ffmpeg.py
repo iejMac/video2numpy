@@ -47,7 +47,7 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, queue_export):
 
         frame_count = int(len(out) / (224 * 224 * 3))  # can do this since dtype = np.uint8 (byte)
         vid_frames = np.frombuffer(out, np.uint8).reshape((frame_count, 224, 224, 3))
-        queue.put(vid_frames)
+        queue.put(vid_frames, dst_name)
 
     random.Random(worker_id).shuffle(vids)
     for vid in vids:

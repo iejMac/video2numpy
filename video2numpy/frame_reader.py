@@ -41,8 +41,8 @@ class FrameReader:
 
     def __next__(self):
         if self.shared_queue or any(p.is_alive() for p in self.procs):
-            frames = self.shared_queue.get()
-            return frames
+            frames, name = self.shared_queue.get()
+            return frames, name
         raise StopIteration
 
     def start_reading(self):
