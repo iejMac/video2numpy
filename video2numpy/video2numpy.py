@@ -5,27 +5,27 @@ import numpy as np
 from .frame_reader import FrameReader
 
 
-VID_CHUNK_SIZE = 2
-QUALITY = "360p"
-
-
-def video2numpy(src, dest="", take_every_nth=1, resize_size=224):
+def video2numpy(src, dest="", take_every_nth=1, resize_size=224, workers=1, memory_size=4):
     """
     Read frames from videos and save as numpy arrays
 
     Input:
-      src:
+    src:
         str: path to mp4 file
         str: youtube link
         str: path to txt file with multiple mp4's or youtube links
         list: list with multiple mp4's or youtube links
-      dest:
+    dest:
         str: directory where to save frames to
         None: dest = src + .npy
-      take_every_nth:
+    take_every_nth:
         int: only take every nth frame
-      resize_size:
+    resize_size:
         int: new pixel height and width of resized frame
+    workers:
+        int: number of workers used to read videos
+    memory_size:
+        int: number of GB of shared memory used for reading, use larger shared memory for more videos
     """
     if isinstance(src, str):
         if src.endswith(".txt"):  # list of mp4s or youtube links
@@ -36,12 +36,9 @@ def video2numpy(src, dest="", take_every_nth=1, resize_size=224):
     else:
         fnames = src
 
-    reader = FrameReader(fnames, VID_CHUNK_SIZE, take_every_nth, resize_size)
+    reader = FrameReader(fnames, take_every_nth, resize_size, workers, memory_size)
     reader.start_reading()
 
-    for block, ind_dict in reader:
-        for dst_name, inds in ind_dict.items():
-            i0, it = inds
-            frames = block[i0:it]
-            save_pth = os.path.join(dest, dst_name)
-            np.save(save_pth, frames)
+    for vid_frames, dst_name in reader:
+        save_pth = os.path.join(dest, dst_name)
+        np.save(save_pth, vid_frames)

@@ -5,6 +5,7 @@ import ffmpeg
 import numpy as np
 
 from .shared_queue import SharedQueue
+from .utils import handle_youtube
 
 
 QUALITY = "360p"
@@ -25,16 +26,19 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, queue_export):
     fps = int(25 / take_every_nth)
 
     def get_frames(vid):
-        cap = cv2.VideoCapture(vid)
+        if not vid.endswith(".mp4"):
+            load_vid, dst_name = handle_youtube(vid)
+        else:
+            load_vid, dst_name = vid, vid[:-4].split("/")[-1] + ".npy"
+
+        cap = cv2.VideoCapture(load_vid)
         width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         nw, nh = (-1, 224) if width > height else (224, -1)
 
-        dst_name = vid[:-4].split("/")[-1] + ".npy"
-
         try:
             out, _ = (
-                ffmpeg.input(vid)
+                ffmpeg.input(load_vid)
                 .filter("fps", fps=fps)
                 .filter("scale", nw, nh)
                 .filter("crop", w=224, h=224)

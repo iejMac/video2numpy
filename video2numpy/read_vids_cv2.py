@@ -9,9 +9,8 @@ from multiprocessing.pool import ThreadPool
 
 from .resizer import Resizer
 from .shared_queue import SharedQueue
+from .utils import handle_youtube
 
-
-QUALITY = "360p"
 
 
 def read_vids(vids, worker_id, take_every_nth, resize_size, queue_export):
@@ -28,10 +27,13 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, queue_export):
     queue = SharedQueue.from_export(*queue_export)
 
     def get_frames(vid):
+        if not vid.endswith(".mp4"):
+            load_vid, dst_name = handle_youtube(vid)
+        else:
+            load_vid, dst_name = vid, vid[:-4].split("/")[-1] + ".npy"
+
         video_frames = []
-        cv2_vid = vid
-        dst_name = vid[:-4].split("/")[-1] + ".npy"
-        cap = cv2.VideoCapture(cv2_vid)  # pylint: disable=I1101
+        cap = cv2.VideoCapture(load_vid)  # pylint: disable=I1101
 
         if not cap.isOpened():
             print(f"Error: {vid} not opened")
