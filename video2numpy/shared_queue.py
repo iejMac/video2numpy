@@ -1,3 +1,5 @@
+"""SharedQueue for saving arrays of video frames."""
+import datetime
 import time
 import multiprocessing
 import numpy as np
@@ -9,6 +11,8 @@ from multiprocessing.shared_memory import SharedMemory
 
 # taken from: https://github.com/ClashLuke
 class SharedQueue:
+    """SharedQueue class."""
+
     frame_mem: SharedMemory
     frame: np.ndarray
     indices: list
@@ -17,6 +21,7 @@ class SharedQueue:
 
     @classmethod
     def from_shape(cls, shape: typing.List[int]):
+        """create SharedQueue from shape."""
         self = cls()
         frames = np.zeros(shape, dtype=np.uint8)
         self.frame_mem = SharedMemory(create=True, size=frames.nbytes)
@@ -56,7 +61,8 @@ class SharedQueue:
         itr = zip([["", None, 0]] + local_indices, local_indices + [["", self.frame.shape[0], None]])
         for i, ((_, _, prev_end), (_, start, _)) in enumerate(itr):
             if start - prev_end > size:
-                return i, prev_end, prev_end + size
+                return i, prev_end, prev_end + size  # type: ignore
+        return 0, 0, 0
 
     def _put_item(self, obj: np.ndarray, name: str):
         batches = obj.shape[0]
@@ -69,11 +75,12 @@ class SharedQueue:
         self.frame[start:end] = obj[:]  # we simply assume that the synchronisation overheads make the reader slower
 
     def put(self, obj: np.ndarray, name: str):
+        """Put array on queue."""
         batches = obj.shape[0]
         max_size = self.frame.shape[0] // 4  # unrealistic that it'll fit if it takes up 25% of the memory
         if batches > max_size:
             for idx in range(0, batches, max_size):  # ... so we slice it up and feed in many smaller videos
-                self.put(obj[idx:idx + max_size], name)
+                self.put(obj[idx : idx + max_size], name)
             return
 
         def _fits():
@@ -85,8 +92,12 @@ class SharedQueue:
             time.sleep(5)
             waiting -= 1
         if not waiting:
-            print("Warning: waited for one minute for space to free up, but none found. Increase memory size to avoid "
-                  "fragmentation or implement defragmentation. Timestamp:", datetime.datetime.now(), flush=True)
+            print(
+                "Warning: waited for one minute for space to free up, but none found. Increase memory size to avoid "
+                "fragmentation or implement defragmentation. Timestamp:",
+                datetime.datetime.now(),
+                flush=True,
+            )
             return
 
         self._put_item(obj, name)

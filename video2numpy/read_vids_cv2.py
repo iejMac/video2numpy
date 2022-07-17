@@ -1,16 +1,11 @@
-"""uses ffmpeg to read frames from video."""
+"""uses opencv to read frames from video."""
 import cv2
 import random
-import ffmpeg
 import numpy as np
-
-from multiprocessing import shared_memory
-from multiprocessing.pool import ThreadPool
 
 from .resizer import Resizer
 from .shared_queue import SharedQueue
 from .utils import handle_youtube
-
 
 
 def read_vids(vids, worker_id, take_every_nth, resize_size, queue_export):

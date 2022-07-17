@@ -34,14 +34,14 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, queue_export):
         cap = cv2.VideoCapture(load_vid)
         width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-        nw, nh = (-1, 224) if width > height else (224, -1)
+        nw, nh = (-1, resize_size) if width > height else (resize_size, -1)
 
         try:
             out, _ = (
                 ffmpeg.input(load_vid)
                 .filter("fps", fps=fps)
                 .filter("scale", nw, nh)
-                .filter("crop", w=224, h=224)
+                .filter("crop", w=resize_size, h=resize_size)
                 .output("pipe:", format="rawvideo", pix_fmt="rgb24", loglevel="error")
                 .run(capture_stdout=True)
             )
@@ -49,8 +49,8 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, queue_export):
             print(f"Error: couldn't read video {vid}")
             return
 
-        frame_count = int(len(out) / (224 * 224 * 3))  # can do this since dtype = np.uint8 (byte)
-        vid_frames = np.frombuffer(out, np.uint8).reshape((frame_count, 224, 224, 3))
+        frame_count = int(len(out) / (resize_size * resize_size * 3))  # can do this since dtype = np.uint8 (byte)
+        vid_frames = np.frombuffer(out, np.uint8).reshape((frame_count, resize_size, resize_size, 3))
         queue.put(vid_frames, dst_name)
 
     random.Random(worker_id).shuffle(vids)
