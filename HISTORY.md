@@ -1,3 +1,9 @@
+## 2.0.0
+
+* Use single SharedQueue to store frames
+* FrameReader iterates over video frames instead of frame blocks
+* Fixed shared memory errors
+
 ## 1.1.0
 
 * Allow user to specify thread count
