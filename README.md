@@ -26,18 +26,22 @@ SYNOPSIS
 
 DESCRIPTION
     Input:
-      src:
+    src:
         str: path to mp4 file
         str: youtube link
         str: path to txt file with multiple mp4's or youtube links
         list: list with multiple mp4's or youtube links
-      dest:
+    dest:
         str: directory where to save frames to
         None: dest = src + .npy
-      take_every_nth:
+    take_every_nth:
         int: only take every nth frame
-      resize_size:
+    resize_size:
         int: new pixel height and width of resized frame
+    workers:
+        int: number of workers used to read videos
+    memory_size:
+        int: number of GB of shared memory used for reading, use larger shared memory for more videos
 
 POSITIONAL ARGUMENTS
     SRC
@@ -49,6 +53,13 @@ FLAGS
         Default: 1
     --resize_size=RESIZE_SIZE
         Default: 224
+    --workers=WORKERS
+        Default: 1
+    --memory_size=MEMORY_SIZE
+        Default: 4
+
+NOTES
+    You can also use flags syntax for POSITIONAL ARGUMENTS
 ```
 
 ## API
@@ -65,31 +76,21 @@ take_every_5 = 5
 video2numpy(VIDS, FRAME_DIR, take_every_5)
 ```
 
-You can alse directly use the reader and iterate over frame blocks yourself:
+You can also directly use the reader and iterate over videos yourself:
 ```python
 import glob
 from video2numpy.frame_reader import FrameReader
-from video2numpy.utils import split_block
 
 VIDS = glob.glob("some/path/my_videos/*.mp4")
 take_every_5 = 5
 resize_size = 300
 
-reader = FrameReader(VIDS, FRAME_DIR, take_every_5, resize_size)
+reader = FrameReader(VIDS, take_every_5, resize_size)
+reader.start_reading()
 
-for block, ind_dict in reader:
-
-    if you need to process the block in large batches (f.e. good for ML):
-        proc_block = ml_model(block)
-    else:
-        proc_block = block
-
-    # then you can separate the video frames into a dict easily with split_block from utils:
-    split_up_vids = split_block(proc_block, ind_dict)
-
-    for vid_name, proc_frames in split_up_vids.items():
-        # do something with proc_frame of shape (n_frames, 300, 300, 3)
-        ...
+for vid_frames, npy_name in reader:
+    # do something with vid_frames of shape (n_frames, 300, 300, 3)
+    ...
 ```
 
 ## For development
