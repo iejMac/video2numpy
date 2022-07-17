@@ -70,7 +70,7 @@ import glob
 from video2numpy import video2numpy
 
 VIDS = glob.glob("some/path/my_videos/*.mp4")
-FRAME_DIR = "some/path/my_embeddings"
+FRAME_DIR = "some/path/my_frames"
 take_every_5 = 5
 
 video2numpy(VIDS, FRAME_DIR, take_every_5)
