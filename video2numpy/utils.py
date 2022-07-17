@@ -1,22 +1,22 @@
 """video2numpy utils"""
+import youtube_dl
 
 
-def split_block(block, ind_dict):
-    """
-    separate block into individual videos using ind_dict
+QUALITY = "360p"
 
-    Input:
-      block - numpy array returned from FrameReader or some derivative of it
-              with the same batch dimension order
-      ind_dict - dict that shows what indices correspond to what rows of the "block" arg
-                 {"video_name": (block_ind0, block_indf) ...}
-    Output:
-      dict - {"video_name": stacked block rows corresponding to that video (usually frames) ...}
-    """
-    sep_frames = {}
-    for dst_name, inds in ind_dict.items():
-        i0, it = inds
-        vid_frames = block[i0:it]
 
-        sep_frames[dst_name] = vid_frames
-    return sep_frames
+def handle_youtube(url):
+    """returns file and destination name from youtube url."""
+    ydl_opts = {}
+    ydl = youtube_dl.YoutubeDL(ydl_opts)
+    info = ydl.extract_info(url, download=False)
+    formats = info.get("formats", None)
+    f = None
+    for f in formats:
+        if f.get("format_note", None) != QUALITY:
+            continue
+        break
+
+    cv2_vid = f.get("url", None)
+    dst_name = info.get("id") + ".npy"
+    return cv2_vid, dst_name
