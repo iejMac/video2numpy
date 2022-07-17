@@ -13,14 +13,14 @@ QUALITY = "360p"
 
 def read_vids(vids, worker_id, take_every_nth, resize_size, queue_export):
     """
-    Reads list of videos, saves frames to /dev/shm, and passes reading info through
-    multiprocessing queue
+    Reads list of videos, saves frames to SharedQueue
 
     Input:
       vids - list of videos (either path or youtube link)
-      queue - SharedQueue used to pass frames
+      worker_id - unique ID of worker
       take_every_nth - offset between frames of video (to lower FPS)
       resize_size - new pixel height and width of resized frame
+      queue_export - SharedQueue export used re-create SharedQueue object in worker
     """
     queue = SharedQueue.from_export(*queue_export)
     fps = int(25 / take_every_nth)
