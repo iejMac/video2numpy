@@ -19,7 +19,7 @@ if __name__ == "__main__":
         include_package_data=True,
         version="2.0.0",
         license="MIT",
-        description="A python template",
+        description="Video reading into numpy",
         long_description=long_description,
         long_description_content_type="text/markdown",
         entry_points={"console_scripts": ["video2numpy=video2numpy.cli:main"]},
