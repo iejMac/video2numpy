@@ -28,7 +28,7 @@ class SharedQueue:
         self.frame = np.ndarray(shape, dtype=np.uint8, buffer=self.frame_mem.buf)
         manager = multiprocessing.Manager()
         self.indices = manager.list()
-        # self.frame[:] = 0
+        # self.frame[:] = 0 # TODO: do you need this?
         self.write_index_lock = manager.Lock()
         self.read_index_lock = manager.Lock()
         return self
