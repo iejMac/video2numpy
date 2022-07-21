@@ -35,6 +35,7 @@ class FrameReader:
         shape = [shared_blocks, resize_size, resize_size, 3] if batch_size == -1 else [shared_blocks, batch_size, resize_size, resize_size, 3]
         # dim12 = (shared_blocks,) if batch_size == -1 else (shared_blocks, batch_size)
         # self.shared_queue = SharedQueue.from_shape([*dim12, resize_size, resize_size, 3])
+        self.shared_queue = SharedQueue.from_shape(shape)
 
         div_vids = [vids[int(len(vids) * i / workers) : int(len(vids) * (i + 1) / workers)] for i in range(workers)]
         self.procs = [
