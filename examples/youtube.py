@@ -19,8 +19,9 @@ if __name__ == "__main__":
     reader = FrameReader(links, take_every_nth, resize_size)
     reader.start_reading()
 
-    for frames, vidID in reader:
+    for frames, info in reader:
         # Play few frames from each video
+        vidID = info["dst_name"]
         print(f"Playing video {vidID}...")
         for frame in frames:
             cv2.imshow("frame", frame)
