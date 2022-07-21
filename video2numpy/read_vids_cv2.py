@@ -56,7 +56,7 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
         pad_by = 0
         if batch_size != -1:
             pad_by = (batch_size - f_ct % batch_size) % batch_size
-            np_frames = np.pad(np_frames, ((0, pad_by), (0,0), (0,0), (0,0)))
+            np_frames = np.pad(np_frames, ((0, pad_by), (0, 0), (0, 0), (0, 0)))
             np_frames = np_frames.reshape((-1, batch_size, resize_size, resize_size, 3))
 
         info = {
