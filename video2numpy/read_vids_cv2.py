@@ -8,7 +8,7 @@ from .shared_queue import SharedQueue
 from .utils import handle_youtube
 
 
-def read_vids(vids, worker_id, take_every_nth, resize_size, queue_export):
+def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_export):
     """
     Reads list of videos, saves frames to Shared Queue
 
@@ -17,6 +17,7 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, queue_export):
       worker_id - unique ID of worker
       take_every_nth - offset between frames of video (to lower FPS)
       resize_size - new pixel height and width of resized frame
+      batch_size - max length of frame sequence to put on shared_queue (-1 = no max).
       queue_export - SharedQueue export used re-create SharedQueue object in worker
     """
     queue = SharedQueue.from_export(*queue_export)
@@ -49,7 +50,11 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, queue_export):
                 frame = resizer(frame)
                 video_frames.append(frame)
             ind += 1
-        queue.put(np.array(video_frames), dst_name)
+        np_frames = np.array(video_frames)
+
+
+
+        queue.put(, dst_name)
 
     random.Random(worker_id).shuffle(vids)
     for vid in vids:
