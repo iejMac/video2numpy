@@ -84,12 +84,15 @@ from video2numpy.frame_reader import FrameReader
 VIDS = glob.glob("some/path/my_videos/*.mp4")
 take_every_5 = 5
 resize_size = 300
+batch_size = 64 # output shape will be (n, batch_size, height, width, 3)
 
-reader = FrameReader(VIDS, take_every_5, resize_size)
+reader = FrameReader(VIDS, take_every_5, resize_size, batch_size)
 reader.start_reading()
 
-for vid_frames, npy_name in reader:
-    # do something with vid_frames of shape (n_frames, 300, 300, 3)
+for vid_frames, info_dict in reader:
+    # info_dict["dst_name"] - name for saving numpy array
+    # info_dict["pad_by"] - how many pad frames were added to final block so n_frames % batch_size == 0
+    # do something with vid_frames of shape (n_blocks, 64, 300, 300, 3)
     ...
 ```
 
