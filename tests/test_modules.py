@@ -17,13 +17,16 @@ def test_reader():
 
     take_every_nth = 1
     resize_size = 150
+    batch_size = 5
 
-    reader = FrameReader(vids, take_every_nth, resize_size)
+    reader = FrameReader(vids, take_every_nth, resize_size, batch_size)
     reader.start_reading()
 
-    for vid_frames, dst_name in reader:
-        mp4_name = dst_name[:-4] + ".mp4"
-        assert vid_frames.shape[0] == FRAME_COUNTS[mp4_name]
+    for vid_frames, info in reader:
+        vid_frames[0,0,0,0,0] # assert still allocated
+        mp4_name = info["dst_name"][:-4] + ".mp4"
+        frame_count = vid_frames.shape[0] * vid_frames.shape[1] - info["pad_by"]
+        assert frame_count == FRAME_COUNTS[mp4_name]
 
 
 def test_resizer():

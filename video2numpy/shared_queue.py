@@ -28,7 +28,7 @@ class SharedQueue:
         self.frame = np.ndarray(shape, dtype=np.uint8, buffer=self.frame_mem.buf)
         manager = multiprocessing.Manager()
         self.indices = manager.list()
-        self.frame[:] = 0
+        # self.frame[:] = 0 # TODO: do you need this?
         self.write_index_lock = manager.Lock()
         self.read_index_lock = manager.Lock()
         return self
@@ -51,8 +51,8 @@ class SharedQueue:
             with self.read_index_lock:
                 while not self:
                     time.sleep(1)
-                name, start, end = self.indices.pop(0)
-            return self.frame[start:end].copy(), name  # local clone, so share can be safely edited
+                info, start, end = self.indices.pop(0)
+            return self.frame[start:end].copy(), info  # local clone, so share can be safely edited
 
     def _free_memory(self, size: int) -> typing.Optional[typing.Tuple[int, int, int]]:
         if not self:
@@ -64,23 +64,23 @@ class SharedQueue:
                 return i, prev_end, prev_end + size  # type: ignore
         return 0, 0, 0
 
-    def _put_item(self, obj: np.ndarray, name: str):
+    def _put_item(self, obj: np.ndarray, info: dict):
         batches = obj.shape[0]
         with self.write_index_lock:
             indices = self._free_memory(batches)
             if indices is None:
                 return
             idx, start, end = indices
-            self.indices.insert(idx, (name, start, end))
+            self.indices.insert(idx, (info, start, end))
         self.frame[start:end] = obj[:]  # we simply assume that the synchronisation overheads make the reader slower
 
-    def put(self, obj: np.ndarray, name: str):
+    def put(self, obj: np.ndarray, info: dict):
         """Put array on queue."""
         batches = obj.shape[0]
         max_size = self.frame.shape[0] // 4  # unrealistic that it'll fit if it takes up 25% of the memory
         if batches > max_size:
             for idx in range(0, batches, max_size):  # ... so we slice it up and feed in many smaller videos
-                self.put(obj[idx : idx + max_size], name)
+                self.put(obj[idx : idx + max_size], info)
             return
 
         def _fits():
@@ -100,7 +100,7 @@ class SharedQueue:
             )
             return
 
-        self._put_item(obj, name)
+        self._put_item(obj, info)
 
     def __bool__(self):
         return bool(self.indices)

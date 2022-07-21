@@ -15,6 +15,7 @@ class FrameReader:
         vids,
         take_every_nth=1,
         resize_size=224,
+        batch_size=-1,
         workers=1,
         memory_size=4,
     ):
@@ -24,18 +25,20 @@ class FrameReader:
           chunk_size - how many videos to process at once.
           take_every_nth - offset between frames we take.
           resize_size - pixel height and width of target output shape.
+          batch_size - max length of frame sequence to put on shared_queue (-1 = no max).
           workers - number of Processes to distribute video reading to.
           memory_size - number of GB of shared_memory
         """
 
-        memory_size_b = memory_size * 1024**3
-        shared_frames = memory_size_b // (256**2 * 3)
-        self.shared_queue = SharedQueue.from_shape([shared_frames, resize_size, resize_size, 3])
+        memory_size_b = memory_size * 1024**3  # GB -> bytes
+        shared_blocks = memory_size_b // (resize_size**2 * 3 * (1 if batch_size == -1 else batch_size))
+        dim12 = (shared_blocks,) if batch_size == -1 else (shared_blocks, batch_size)
+        self.shared_queue = SharedQueue.from_shape([*dim12, resize_size, resize_size, 3])
 
         div_vids = [vids[int(len(vids) * i / workers) : int(len(vids) * (i + 1) / workers)] for i in range(workers)]
         self.procs = [
             multiprocessing.Process(
-                args=(work, worker_id, take_every_nth, resize_size, self.shared_queue.export()),
+                args=(work, worker_id, take_every_nth, resize_size, batch_size, self.shared_queue.export()),
                 daemon=True,
                 target=read_vids,
             )
@@ -47,8 +50,8 @@ class FrameReader:
 
     def __next__(self):
         if self.shared_queue or any(p.is_alive() for p in self.procs):
-            frames, name = self.shared_queue.get()
-            return frames, name
+            frames, info = self.shared_queue.get()
+            return frames, info
         self.finish_reading()
         self.release_memory()
         raise StopIteration
