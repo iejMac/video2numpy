@@ -43,8 +43,9 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, queue_export):
         ret = True
         ind = 0
         while ret:
-            ret, frame = cap.read()
+            ret = cap.grab()
             if ret and (ind % take_every_nth == 0):
+                ret, frame = cap.retrieve()
                 frame = resizer(frame)
                 video_frames.append(frame)
             ind += 1
