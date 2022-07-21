@@ -38,7 +38,7 @@ class FrameReader:
         div_vids = [vids[int(len(vids) * i / workers) : int(len(vids) * (i + 1) / workers)] for i in range(workers)]
         self.procs = [
             multiprocessing.Process(
-                args=(work, worker_id, take_every_nth, resize_size, self.shared_queue.export()),
+                args=(work, worker_id, take_every_nth, resize_size, batch_size, self.shared_queue.export()),
                 daemon=True,
                 target=read_vids,
             )
@@ -50,8 +50,8 @@ class FrameReader:
 
     def __next__(self):
         if self.shared_queue or any(p.is_alive() for p in self.procs):
-            frames, name = self.shared_queue.get()
-            return frames, name
+            frames, info = self.shared_queue.get()
+            return frames, info
         self.finish_reading()
         self.release_memory()
         raise StopIteration
