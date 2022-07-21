@@ -1,3 +1,7 @@
+## 2.1.0
+
+* FrameReader has the option to output batched blocks of frames
+
 ## 2.0.0
 
 * Use single SharedQueue to store frames
