@@ -45,7 +45,6 @@ def benchmark_reading(vids, take_en, resize_size, workers):
 
     count = 0
     for vid, name in reader:
-        print(name)
         vid[0, 0, 0, 0]  # assert no Segmentation fault
         count += vid.shape[0]
 
