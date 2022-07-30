@@ -72,7 +72,7 @@ if __name__ == "__main__":
         samp_per_s, _, _ = benchmark_reading(vids, ten, resize_size, workers)
         print(f"samples/s @ {fps} FPS = {samp_per_s}")
         results.append(samp_per_s)
-        time.sleep(5) # allow time for reset
+        time.sleep(5)  # allow time for reset
 
     plt.plot(video_fps, results)
     plt.title(f"{args.name}: resize size - {resize_size} | workers - {workers}")

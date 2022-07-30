@@ -28,7 +28,7 @@ class SharedQueue:
         self.frame = np.ndarray(shape, dtype=np.uint8, buffer=self.frame_mem.buf)
         manager = multiprocessing.Manager()
         self.indices = manager.list()
-        self.frame[:] = 0 # TODO: do you need this?
+        self.frame[:] = 0  # TODO: do you need this?
         self.write_index_lock = manager.Lock()
         self.read_index_lock = manager.Lock()
         return self
@@ -58,7 +58,7 @@ class SharedQueue:
         if not self:
             return 0, 0, size
         local_indices = list(self.indices)
-        itr = zip([[{}, None, 0]] + local_indices, local_indices + [[{}, self.frame.shape[0], None]])
+        itr = zip([[{}, None, 0]] + local_indices, local_indices + [[{}, self.frame.shape[0], None]])  # type: ignore
         for i, ((_, _, prev_end), (_, start, _)) in enumerate(itr):
             if start - prev_end > size:
                 return i, prev_end, prev_end + size  # type: ignore
