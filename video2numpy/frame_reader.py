@@ -30,7 +30,7 @@ class FrameReader:
           memory_size - number of GB of shared_memory
         """
 
-        memory_size_b = memory_size * 1024**3  # GB -> bytes
+        memory_size_b = int(memory_size * 1024**3)  # GB -> bytes
         shared_blocks = memory_size_b // (resize_size**2 * 3 * (1 if batch_size == -1 else batch_size))
         dim12 = (shared_blocks,) if batch_size == -1 else (shared_blocks, batch_size)
         self.shared_queue = SharedQueue.from_shape([*dim12, resize_size, resize_size, 3])
