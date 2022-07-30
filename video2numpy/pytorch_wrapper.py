@@ -8,7 +8,7 @@ class Dataset(torch.utils.data.IterableDataset):
         self.frame_reader = frame_reader
 
     def __len__(self):
-        return 10 ** 9
+        return 10**9
 
     def __iter__(self):
         for item in self.frame_reader:
@@ -16,6 +16,8 @@ class Dataset(torch.utils.data.IterableDataset):
 
 
 def fr2dl(frame_reader):
-	dataset = Dataset(frame_reader)
-	dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, num_workers=0, collate_fn=lambda x: x[0])
-	return dataloader
+    dataset = Dataset(frame_reader)
+    dataloader = torch.utils.data.DataLoader(
+        dataset, batch_size=1, shuffle=False, num_workers=0, collate_fn=lambda x: x[0]
+    )
+    return dataloader

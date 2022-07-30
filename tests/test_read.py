@@ -18,7 +18,9 @@ def test_read():
     take_en = 2
     rs = 100
     with tempfile.TemporaryDirectory() as tmpdir:
-        video2numpy(os.path.join(test_path, "test_list.txt"), tmpdir, take_every_nth=take_en, resize_size=rs, memory_size=1)
+        video2numpy(
+            os.path.join(test_path, "test_list.txt"), tmpdir, take_every_nth=take_en, resize_size=rs, memory_size=1
+        )
         for vid in FRAME_COUNTS.keys():
             if vid.endswith(".mp4"):
                 ld = vid[:-4] + ".npy"

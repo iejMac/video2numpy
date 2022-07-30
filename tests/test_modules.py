@@ -23,7 +23,7 @@ def test_reader():
     reader.start_reading()
 
     for vid_frames, info in reader:
-        vid_frames[0,0,0,0,0] # assert still allocated
+        vid_frames[0, 0, 0, 0, 0]  # assert still allocated
         mp4_name = info["dst_name"][:-4] + ".mp4"
         frame_count = vid_frames.shape[0] * vid_frames.shape[1] - info["pad_by"]
         assert frame_count == FRAME_COUNTS[mp4_name]
