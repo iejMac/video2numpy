@@ -7,7 +7,7 @@ from .resizer import Resizer
 from .shared_queue import SharedQueue
 from .utils import handle_youtube
 
-
+# Yuchen TODO: Inte1rgrate audio2numpy to video2numpy
 def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_export):
     """
     Reads list of videos, saves frames to Shared Queue
