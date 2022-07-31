@@ -6,11 +6,22 @@ import numpy as np
 from .resizer import Resizer
 from .shared_queue import SharedQueue
 from .utils import handle_youtube
+from .utils import extract_audio_from_url
 
 
-def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_export):
+def read_vids(vids, 
+             worker_id, 
+             take_every_nth, 
+             resize_size, 
+             batch_size, 
+             queue_export_video,
+             queue_export_audio,
+             output_dir,
+             no_audio,
+             no_video):
     """
-    Reads list of videos, saves frames to Shared Queue
+    Reads list of videos, saves frames to Shared Queue,
+    or optionally, save audios to Shared Queue. 
 
     Input:
       vids - list of videos (either path or youtube link)
@@ -18,9 +29,15 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
       take_every_nth - offset between frames of video (to lower FPS)
       resize_size - new pixel height and width of resized frame
       batch_size - max length of frame sequence to put on shared_queue (-1 = no max).
-      queue_export - SharedQueue export used re-create SharedQueue object in worker
+      queue_export_video  - SharedQueue export used re-create SharedQueue object in worker
+      queue_export_audio  - SharedQueue export used re-create SharedQueue object in worker
+      output_dir - directory to temporarily store audio files. All the audio files will be deleted 
+            immidiately after they are converted to numpy array. 
+      no_audio - boolean, if True, do not extract audio
+      no_video - boolean, if True, do not extract video
     """
-    queue = SharedQueue.from_export(*queue_export)
+    queue_video = SharedQueue.from_export(*queue_export_video)
+    queue_audio = SharedQueue.from_export(*queue_export_audio)
 
     def get_frames(vid):
         if not vid.endswith(".mp4"):
@@ -63,8 +80,17 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
             "dst_name": dst_name,
             "pad_by": pad_by,
         }
-        queue.put(np_frames, info)
+        queue_video.put(np_frames, info)
 
     random.Random(worker_id).shuffle(vids)
+
     for vid in vids:
-        get_frames(vid)
+        if not no_video:
+            get_frames(vid)
+        if not no_audio:
+            np_array, dst_name = extract_audio_from_url(vid,output_dir) 
+            info = {
+                "dst_name": dst_name,
+                "pad_by": 0,
+            } 
+            queue_audio.put(np_array, info)
