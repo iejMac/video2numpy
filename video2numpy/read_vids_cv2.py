@@ -24,7 +24,7 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
     queue = SharedQueue.from_export(*queue_export)
 
     def get_frames(vid):
-        #TODO: better way of testing if vid is url
+        # TODO: better way of testing if vid is url
         if vid.startswith("http://") or vid.startswith("https://"):
             load_vid, file, dst_name = handle_url(vid)
         else:
@@ -67,7 +67,7 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
         }
         queue.put(np_frames, info)
 
-        if file is not None: # for python files that need to be closed
+        if file is not None:  # for python files that need to be closed
             file.close()
 
     random.Random(worker_id).shuffle(vids)
