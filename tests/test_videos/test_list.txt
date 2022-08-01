@@ -1,3 +1,4 @@
 tests/test_videos/vid1.mp4
 tests/test_videos/vid2.mp4
 https://www.youtube.com/watch?v=a8DM-tD9w2I
+https://ak.picdn.net/shutterstock/videos/1027784972/preview/stock-footage-young-man-enjoying-view-of-mountain-and-forest-in-morning-during-sunrise-with-lens-flare-effects.mp4

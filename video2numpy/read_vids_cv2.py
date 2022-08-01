@@ -1,11 +1,11 @@
 """uses opencv to read frames from video."""
 import cv2
-import random
 import numpy as np
+import random
 
 from .resizer import Resizer
 from .shared_queue import SharedQueue
-from .utils import handle_youtube
+from .utils import handle_url
 
 
 def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_export):
@@ -23,10 +23,11 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
     queue = SharedQueue.from_export(*queue_export)
 
     def get_frames(vid):
-        if not vid.endswith(".mp4"):
-            load_vid, dst_name = handle_youtube(vid)
+        # TODO: better way of testing if vid is url
+        if vid.startswith("http://") or vid.startswith("https://"):
+            load_vid, file, dst_name = handle_url(vid)
         else:
-            load_vid, dst_name = vid, vid[:-4].split("/")[-1] + ".npy"
+            load_vid, file, dst_name = vid, None, vid[:-4].split("/")[-1] + ".npy"
 
         video_frames = []
         cap = cv2.VideoCapture(load_vid)  # pylint: disable=I1101
@@ -64,6 +65,9 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
             "pad_by": pad_by,
         }
         queue.put(np_frames, info)
+
+        if file is not None:  # for python files that need to be closed
+            file.close()
 
     random.Random(worker_id).shuffle(vids)
     for vid in vids:
