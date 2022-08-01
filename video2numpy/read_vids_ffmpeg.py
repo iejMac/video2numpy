@@ -5,10 +5,7 @@ import ffmpeg
 import numpy as np
 
 from .shared_queue import SharedQueue
-from .utils import handle_youtube
-
-
-QUALITY = "360p"
+from .utils import handle_url
 
 
 def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_export):
@@ -27,10 +24,11 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
     fps = int(25 / take_every_nth)
 
     def get_frames(vid):
-        if not vid.endswith(".mp4"):
-            load_vid, dst_name = handle_youtube(vid)
+        # TODO: better way of testing if vid is url
+        if vid.startswith("http://") or vid.startswith("https://"):
+            load_vid, file, dst_name = handle_url(vid)
         else:
-            load_vid, dst_name = vid, vid[:-4].split("/")[-1] + ".npy"
+            load_vid, file, dst_name = vid, None, vid[:-4].split("/")[-1] + ".npy"
 
         cap = cv2.VideoCapture(load_vid)
         width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
@@ -63,6 +61,10 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
             "pad_by": pad_by,
         }
         queue.put(np_frames, info)
+
+        if file is not None:  # for python files that need to be closed
+            file.close()
+
 
     random.Random(worker_id).shuffle(vids)
     for vid in vids:

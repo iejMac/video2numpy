@@ -26,7 +26,7 @@ def handle_youtube(youtube_url):
 
 def handle_mp4_link(mp4_link):
     resp = requests.get(mp4_link, stream=True)
-    ntf = tempfile.NamedTemporaryFile()
+    ntf = tempfile.NamedTemporaryFile() # pylint: disable=consider-using-with
     ntf.write(resp.content)
     ntf.seek(0)
     dst_name = mp4_link.split("/")[-1][:-4] + ".npy"
