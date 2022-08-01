@@ -2,7 +2,6 @@
 import cv2
 import numpy as np
 import random
-import tempfile
 
 from .resizer import Resizer
 from .shared_queue import SharedQueue
