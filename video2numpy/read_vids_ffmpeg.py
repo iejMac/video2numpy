@@ -65,7 +65,6 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
         if file is not None:  # for python files that need to be closed
             file.close()
 
-
     random.Random(worker_id).shuffle(vids)
     for vid in vids:
         get_frames(vid)
