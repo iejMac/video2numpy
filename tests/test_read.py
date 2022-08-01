@@ -10,6 +10,7 @@ FRAME_COUNTS = {
     "vid1.mp4": 56,
     "vid2.mp4": 134,
     "https://www.youtube.com/watch?v=a8DM-tD9w2I": 20,
+    "https://ak.picdn.net/shutterstock/videos/1027784972/preview/stock-footage-young-man-enjoying-view-of-mountain-and-forest-in-morning-during-sunrise-with-lens-flare-effects.mp4": 246,
 }
 
 
@@ -23,7 +24,7 @@ def test_read():
         )
         for vid in FRAME_COUNTS.keys():
             if vid.endswith(".mp4"):
-                ld = vid[:-4] + ".npy"
+                ld = vid.split("/")[-1][:-4] + ".npy"
             else:
                 ld = vid.split("=")[-1] + ".npy"
 
