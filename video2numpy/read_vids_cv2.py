@@ -25,10 +25,10 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
 
     def get_frames(vid):
         #TODO: better way of testing if vid is url
-        if not vid.startswith("http://") or vid.startswtih("https://"):
+        if vid.startswith("http://") or vid.startswith("https://"):
             load_vid, file, dst_name = handle_url(vid)
         else:
-            load_vid, file, dst_name = vid, vid[:-4].split("/")[-1] + ".npy"
+            load_vid, file, dst_name = vid, None, vid[:-4].split("/")[-1] + ".npy"
 
         video_frames = []
         cap = cv2.VideoCapture(load_vid)  # pylint: disable=I1101
