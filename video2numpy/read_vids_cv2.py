@@ -2,11 +2,15 @@
 import cv2
 import random
 import numpy as np
+import ffmpeg
+import librosa
+import io
 
 from .resizer import Resizer
 from .shared_queue import SharedQueue
 from .utils import handle_youtube
-from .utils import extract_audio_from_url
+
+SAMPLING_RATE = 48000
 
 
 def read_vids(vids, 
@@ -16,9 +20,8 @@ def read_vids(vids,
              batch_size, 
              queue_export_video,
              queue_export_audio,
-             output_dir,
-             no_audio,
-             no_video):
+             modalities = ["video", "audio"]
+             ):
     """
     Reads list of videos, saves frames to Shared Queue,
     or optionally, save audios to Shared Queue. 
@@ -29,19 +32,18 @@ def read_vids(vids,
       take_every_nth - offset between frames of video (to lower FPS)
       resize_size - new pixel height and width of resized frame
       batch_size - max length of frame sequence to put on shared_queue (-1 = no max).
-      queue_export_video  - SharedQueue export used re-create SharedQueue object in worker
-      queue_export_audio  - SharedQueue export used re-create SharedQueue object in worker
+      queue_export_video  - SharedQueue export for video frames, used re-create SharedQueue object in worker
+      queue_export_audio  - SharedQueue export for audio, used re-create SharedQueue object in worker
       output_dir - directory to temporarily store audio files. All the audio files will be deleted 
             immidiately after they are converted to numpy array. 
-      no_audio - boolean, if True, do not extract audio
-      no_video - boolean, if True, do not extract video
+      modalities - list of modalities to convert to numpy ndarray, ["video", "audio"] as default.
     """
     queue_video = SharedQueue.from_export(*queue_export_video)
     queue_audio = SharedQueue.from_export(*queue_export_audio)
 
     def get_frames(vid):
         if not vid.endswith(".mp4"):
-            load_vid, dst_name = handle_youtube(vid)
+            load_vid, dst_name = handle_youtube(vid, "video")
         else:
             load_vid, dst_name = vid, vid[:-4].split("/")[-1] + ".npy"
 
@@ -82,15 +84,37 @@ def read_vids(vids,
         }
         queue_video.put(np_frames, info)
 
+
+    def get_audio(vid):
+        if not vid.endswith(".wav"):
+            load_vid, dst_name = handle_youtube(vid, "audio")
+        else:
+            load_vid, dst_name = vid, vid[:-4].split("/")[-1] + ".wav"
+        
+        out, _ = (
+            ffmpeg.input(load_vid)
+            .output(f"pipe:", format="wav", ac = 1, ar = 48000)
+            .run(capture_stdout=True)
+        )
+
+        np_audio, ar = librosa.core.load(io.BytesIO(out), sr = SAMPLING_RATE)
+        
+
+        info = {
+            "dst_name": dst_name,
+            "pad_by": 0,
+        }
+
+        queue_audio.put(np_audio, info)
+
+
+
+
     random.Random(worker_id).shuffle(vids)
 
     for vid in vids:
-        if not no_video:
+        if "video" in modalities:
             get_frames(vid)
-        if not no_audio:
-            np_array, dst_name = extract_audio_from_url(vid,output_dir) 
-            info = {
-                "dst_name": dst_name,
-                "pad_by": 0,
-            } 
-            queue_audio.put(np_array, info)
+        if "audio" in modalities:
+            get_audio(vid)
+        
