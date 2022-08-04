@@ -62,6 +62,7 @@ class SharedQueue:
         for i, ((_, _, prev_end), (_, start, _)) in enumerate(itr):
             if start - prev_end > size:
                 return i, prev_end, prev_end + size  # type: ignore
+        return None
 
     def _put_item(self, obj: np.ndarray, info: dict):
         batches = obj.shape[0]
