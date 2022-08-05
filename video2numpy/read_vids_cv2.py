@@ -71,4 +71,7 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
 
     random.Random(worker_id).shuffle(vids)
     for vid in vids:
-        get_frames(vid)
+        try:
+            get_frames(vid)
+        except:
+            print(f"Error: Video {vid} failed")
