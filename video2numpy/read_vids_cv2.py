@@ -52,6 +52,10 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
                 video_frames.append(frame)
             ind += 1
 
+        if len(video_frames) == 0:
+            print(f"Warning: {vid} contained 0 frames")
+            return
+
         np_frames = np.array(video_frames)
         f_ct = np_frames.shape[0]
         pad_by = 0
