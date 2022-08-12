@@ -4,28 +4,29 @@ import numpy as np
 import psutil
 import random
 
+import time
+
 from .resizer import Resizer
 from .shared_queue import SharedQueue
 from .utils import handle_url
 
 
-def read_vids(vids, worker_id, resources, take_every_nth, resize_size, batch_size, queue_export):
+def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_export):
     """
     Reads list of videos, saves frames to Shared Queue
 
     Input:
       vids - list of videos (either path or youtube link)
       worker_id - unique ID of worker
-      resources - CPUs available to worker (list of indices)
       take_every_nth - offset between frames of video (to lower FPS)
       resize_size - new pixel height and width of resized frame
       batch_size - max length of frame sequence to put on shared_queue (-1 = no max).
       queue_export - SharedQueue export used re-create SharedQueue object in worker
     """
     p = psutil.Process()
-    p.cpu_affinity(resources) # set cpu's available for worker
+    t0 = time.perf_counter()
 
-    print(p.cpu_affinity())
+    print(f"Workers {worker_id} affinit - {p.cpu_affinity()}")
 
     queue = SharedQueue.from_export(*queue_export)
 
@@ -82,3 +83,5 @@ def read_vids(vids, worker_id, resources, take_every_nth, resize_size, batch_siz
             get_frames(vid)
         except:
             print(f"Error: Video {vid} failed")
+    print(f"Worker {worker_id} processed {len(vids)} vidoes in {time.perf_counter() - t0}")
+
