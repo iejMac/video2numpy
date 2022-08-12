@@ -51,6 +51,7 @@ class FrameReader:
 
     def __len__(self):
         return self.n_vids
+
     def __iter__(self):
         return self
 
