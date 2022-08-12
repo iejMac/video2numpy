@@ -30,7 +30,7 @@ class FrameReader:
           workers - number of Processes to distribute video reading to.
           memory_size - number of GB of shared_memory
         """
-
+        self.n_vids = len(vids)
         random.shuffle(vids)  # shuffle videos so each shard has approximately equal sum of video lengths
 
         memory_size_b = int(memory_size * 1024**3)  # GB -> bytes
@@ -49,6 +49,8 @@ class FrameReader:
             for worker_id, work in enumerate(div_vids)
         ]
 
+    def __len__(self):
+        return self.n_vids
     def __iter__(self):
         return self
 
