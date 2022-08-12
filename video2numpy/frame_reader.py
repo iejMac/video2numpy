@@ -30,7 +30,7 @@ class FrameReader:
           take_every_nth - offset between frames we take.
           resize_size - pixel height and width of target output shape.
           batch_size - max length of frame sequence to put on shared_queue (-1 = no max).
-          workers - num workers to use
+          workers - number of Processes to distribute video reading to.
           memory_size - number of GB of shared_memory
         """
 
