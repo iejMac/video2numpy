@@ -3,8 +3,6 @@ import multiprocessing
 import psutil
 import random
 
-import numpy as np
-
 from .read_vids_cv2 import read_vids
 from .shared_queue import SharedQueue
 
@@ -41,7 +39,7 @@ class FrameReader:
         dim12 = (shared_blocks,) if batch_size == -1 else (shared_blocks, batch_size)
         self.shared_queue = SharedQueue.from_shape([*dim12, resize_size, resize_size, 3])
 
-        div_vids = [s.tolist() for s in np.array_split(vids, workers)]
+        div_vids = [vids[int(len(vids) * i / workers) : int(len(vids) * (i + 1) / workers)] for i in range(workers)]
 
         self.procs = [
             multiprocessing.Process(
