@@ -31,7 +31,7 @@ class FrameReader:
           memory_size - number of GB of shared_memory
         """
 
-        random.shuffle(vids) # shuffle videos so each shard has approximately equal sum of video lengths
+        random.shuffle(vids)  # shuffle videos so each shard has approximately equal sum of video lengths
 
         memory_size_b = int(memory_size * 1024**3)  # GB -> bytes
         shared_blocks = memory_size_b // (resize_size**2 * 3 * (1 if batch_size == -1 else batch_size))
