@@ -1,10 +1,7 @@
 """uses opencv to read frames from video."""
 import cv2
 import numpy as np
-import psutil
 import random
-
-import time
 
 from .resizer import Resizer
 from .shared_queue import SharedQueue
@@ -23,11 +20,6 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
       batch_size - max length of frame sequence to put on shared_queue (-1 = no max).
       queue_export - SharedQueue export used re-create SharedQueue object in worker
     """
-    p = psutil.Process()
-    t0 = time.perf_counter()
-
-    print(f"Workers {worker_id} affinit - {p.cpu_affinity()}")
-
     queue = SharedQueue.from_export(*queue_export)
 
     def get_frames(vid):
@@ -83,5 +75,3 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
             get_frames(vid)
         except:
             print(f"Error: Video {vid} failed")
-    print(f"Worker {worker_id} processed {len(vids)} vidoes in {time.perf_counter() - t0}")
-

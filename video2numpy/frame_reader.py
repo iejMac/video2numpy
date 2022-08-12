@@ -1,6 +1,5 @@
 """reader - uses a reader function to read frames from videos"""
 import multiprocessing
-import psutil
 import random
 
 from .read_vids_cv2 import read_vids
