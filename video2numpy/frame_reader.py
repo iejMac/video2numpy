@@ -46,7 +46,9 @@ class FrameReader:
         dim12 = (shared_blocks,) if batch_size == -1 else (shared_blocks, batch_size)
         self.shared_queue = SharedQueue.from_shape([*dim12, resize_size, resize_size, 3])
 
-        div_vids = [vid_refs[int(self.n_vids * i / workers) : int(self.n_vids * (i + 1) / workers)] for i in range(workers)]
+        div_vids = [
+            vid_refs[int(self.n_vids * i / workers) : int(self.n_vids * (i + 1) / workers)] for i in range(workers)
+        ]
 
         self.procs = [
             multiprocessing.Process(
