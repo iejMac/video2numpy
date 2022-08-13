@@ -24,7 +24,7 @@ class FrameReader:
         """
         Input:
           vids - list with youtube links or paths to mp4 files.
-          refs - list with refrences to other data for each video (could be index in some metadata file).
+          refs - list with refrences to other data for each video (could correspondance to metadata in other file).
                  if None, refs = index of video
           chunk_size - how many videos to process at once.
           take_every_nth - offset between frames we take.
