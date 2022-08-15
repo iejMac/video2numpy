@@ -1,3 +1,8 @@
+## 2.3.0
+
+* FrameReader can take a list of references to videos for linking to related data on the other end of video2numpy (f.e. index in csv or parquet)
+* More output from video2numpy about what's going on during processing.
+
 ## 2.2.0
 
 * FrameReader has __len__ implemented as number of videos
