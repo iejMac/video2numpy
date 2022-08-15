@@ -82,7 +82,7 @@ class FrameReader:
     def finish_reading(self):
         for p in self.procs:
             p.join()
-        print(f"All jobs completed.")
+        print("All jobs completed.")
 
     def release_memory(self):
         self.shared_queue.frame_mem.unlink()
