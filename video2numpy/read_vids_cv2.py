@@ -78,5 +78,5 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
     for vid, ref in vid_refs:
         try:
             get_frames(vid, ref)
-        except:  # pylint: disable=bare-except
-            print(f"Error: Video {vid} failed")
+        except Exception as e:
+            print(f"Error: Video {vid} failed with message - {e}")

@@ -34,6 +34,7 @@ class FrameReader:
           memory_size - number of GB of shared_memory
         """
         self.n_vids = len(vids)
+        self.n_workers = workers
 
         if refs is None:
             refs = list(range(self.n_vids))
@@ -74,12 +75,14 @@ class FrameReader:
         raise StopIteration
 
     def start_reading(self):
+        print(f"Reading {self.n_vids} videos using {self.n_workers} workers...")
         for p in self.procs:
             p.start()
 
     def finish_reading(self):
         for p in self.procs:
             p.join()
+        print(f"All jobs completed.")
 
     def release_memory(self):
         self.shared_queue.frame_mem.unlink()
