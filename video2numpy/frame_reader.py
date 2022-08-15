@@ -1,5 +1,6 @@
 """reader - uses a reader function to read frames from videos"""
 import multiprocessing
+import random
 
 from .read_vids_cv2 import read_vids
 from .shared_queue import SharedQueue
@@ -13,6 +14,7 @@ class FrameReader:
     def __init__(
         self,
         vids,
+        refs=None,
         take_every_nth=1,
         resize_size=224,
         batch_size=-1,
@@ -22,6 +24,8 @@ class FrameReader:
         """
         Input:
           vids - list with youtube links or paths to mp4 files.
+          refs - list with refrences to other data for each video (could correspondance to metadata in other file).
+                 if None, refs = index of video
           chunk_size - how many videos to process at once.
           take_every_nth - offset between frames we take.
           resize_size - pixel height and width of target output shape.
@@ -29,13 +33,23 @@ class FrameReader:
           workers - number of Processes to distribute video reading to.
           memory_size - number of GB of shared_memory
         """
+        self.n_vids = len(vids)
+
+        if refs is None:
+            refs = list(range(self.n_vids))
+        vid_refs = list(zip(vids, refs))
+
+        random.shuffle(vid_refs)  # shuffle videos so each shard has approximately equal sum of video lengths
 
         memory_size_b = int(memory_size * 1024**3)  # GB -> bytes
         shared_blocks = memory_size_b // (resize_size**2 * 3 * (1 if batch_size == -1 else batch_size))
         dim12 = (shared_blocks,) if batch_size == -1 else (shared_blocks, batch_size)
         self.shared_queue = SharedQueue.from_shape([*dim12, resize_size, resize_size, 3])
 
-        div_vids = [vids[int(len(vids) * i / workers) : int(len(vids) * (i + 1) / workers)] for i in range(workers)]
+        div_vids = [
+            vid_refs[int(self.n_vids * i / workers) : int(self.n_vids * (i + 1) / workers)] for i in range(workers)
+        ]
+
         self.procs = [
             multiprocessing.Process(
                 args=(work, worker_id, take_every_nth, resize_size, batch_size, self.shared_queue.export()),
@@ -44,6 +58,9 @@ class FrameReader:
             )
             for worker_id, work in enumerate(div_vids)
         ]
+
+    def __len__(self):
+        return self.n_vids
 
     def __iter__(self):
         return self

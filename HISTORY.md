@@ -1,3 +1,9 @@
+## 2.2.0
+
+* FrameReader has __len__ implemented as number of videos
+* support for .mp4 links
+* small bug fixes in SharedQueue
+
 ## 2.1.0
 
 * FrameReader has the option to output batched blocks of frames

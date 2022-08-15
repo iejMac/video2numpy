@@ -37,7 +37,7 @@ def video2numpy(src, dest="", take_every_nth=1, resize_size=224, workers=1, memo
         fnames = src
 
     batch_size = -1
-    reader = FrameReader(fnames, take_every_nth, resize_size, batch_size, workers, memory_size)
+    reader = FrameReader(fnames, None, take_every_nth, resize_size, batch_size, workers, memory_size)
     reader.start_reading()
 
     for vid_frames, info in reader:
