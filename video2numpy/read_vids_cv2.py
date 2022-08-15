@@ -1,5 +1,6 @@
 """uses opencv to read frames from video."""
 import cv2
+import time
 import numpy as np
 import random
 
@@ -21,6 +22,8 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
       queue_export - SharedQueue export used re-create SharedQueue object in worker
     """
     queue = SharedQueue.from_export(*queue_export)
+    t0 = time.perf_counter()
+    print(f"Worker #{worker_id} starting processing {len(vid_refs)} videos")
 
     def get_frames(vid, ref):
         # TODO: better way of testing if vid is url
@@ -80,3 +83,5 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
             get_frames(vid, ref)
         except Exception as e:
             print(f"Error: Video {vid} failed with message - {e}")
+    tf = time.perf_counter()
+    print(f"Worker #{worker_id} done processing {len(vid_refs)} videos in {tf-t0}[s]")
