@@ -81,7 +81,7 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
     for vid, ref in vid_refs:
         try:
             get_frames(vid, ref)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=bare-except
             print(f"Error: Video {vid} failed with message - {e}")
     tf = time.perf_counter()
     print(f"Worker #{worker_id} done processing {len(vid_refs)} videos in {tf-t0}[s]")
