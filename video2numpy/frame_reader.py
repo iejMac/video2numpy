@@ -1,6 +1,7 @@
 """reader - uses a reader function to read frames from videos"""
 import multiprocessing
 import random
+import time
 
 from .read_vids_cv2 import read_vids
 from .shared_queue import SharedQueue
@@ -34,6 +35,7 @@ class FrameReader:
           memory_size - number of GB of shared_memory
         """
         self.n_vids = len(vids)
+        self.n_workers = workers
 
         if refs is None:
             refs = list(range(self.n_vids))
@@ -74,12 +76,15 @@ class FrameReader:
         raise StopIteration
 
     def start_reading(self):
+        print(f"Reading {self.n_vids} videos using {self.n_workers} workers...")
+        self.t0 = time.perf_counter()
         for p in self.procs:
             p.start()
 
     def finish_reading(self):
         for p in self.procs:
             p.join()
+        print(f"All jobs completed in {time.perf_counter() - self.t0}[s].")
 
     def release_memory(self):
         self.shared_queue.frame_mem.unlink()

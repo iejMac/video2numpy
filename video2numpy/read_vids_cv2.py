@@ -1,5 +1,6 @@
 """uses opencv to read frames from video."""
 import cv2
+import time
 import numpy as np
 import random
 
@@ -21,6 +22,8 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
       queue_export - SharedQueue export used re-create SharedQueue object in worker
     """
     queue = SharedQueue.from_export(*queue_export)
+    t0 = time.perf_counter()
+    print(f"Worker #{worker_id} starting processing {len(vid_refs)} videos")
 
     def get_frames(vid, ref):
         # TODO: better way of testing if vid is url
@@ -52,6 +55,10 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
                 video_frames.append(frame)
             ind += 1
 
+        if len(video_frames) == 0:
+            print(f"Warning: {vid} contained 0 frames")
+            return
+
         np_frames = np.array(video_frames)
         f_ct = np_frames.shape[0]
         pad_by = 0
@@ -74,5 +81,7 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
     for vid, ref in vid_refs:
         try:
             get_frames(vid, ref)
-        except:  # pylint: disable=bare-except
-            print(f"Error: Video {vid} failed")
+        except Exception as e:  # pylint: disable=broad-except
+            print(f"Error: Video {vid} failed with message - {e}")
+    tf = time.perf_counter()
+    print(f"Worker #{worker_id} done processing {len(vid_refs)} videos in {tf-t0}[s]")

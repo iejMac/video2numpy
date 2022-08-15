@@ -87,13 +87,13 @@ class SharedQueue:
             return bool(self._free_memory(batches))
 
         # until new frames fit into memory
-        waiting = 12
+        waiting = 1
         while not _fits():
             time.sleep(5)
             waiting -= 1
         if not waiting:
             print(
-                "Warning: waited for one minute for space to free up, but none found. Increase memory size to avoid "
+                "Warning: waited for 5 seconds for space to free up, but none found. Increase memory size to avoid "
                 "fragmentation or implement defragmentation. Timestamp:",
                 datetime.datetime.now(),
                 flush=True,
