@@ -20,19 +20,13 @@ class Resizer:
         ratio = from_shape[sm_ind] / to_size
         n_shape = from_shape
         n_shape[sm_ind] = to_size
-        n_shape[bg_ind] = max(
-            int(n_shape[bg_ind] / ratio), to_size
-        )  # safety for rounding errors
+        n_shape[bg_ind] = max(int(n_shape[bg_ind] / ratio), to_size)  # safety for rounding errors
 
         self.resize_shape = tuple(n_shape)
 
     def __call__(self, img):
         # Resize:
-        resized = cv2.resize(
-            img,
-            (self.resize_shape[1], self.resize_shape[0]),
-            interpolation=cv2.INTER_CUBIC,
-        )
+        resized = cv2.resize(img, (self.resize_shape[1], self.resize_shape[0]), interpolation=cv2.INTER_CUBIC)
 
         # Center crop:
         my = int((self.resize_shape[0] - self.to_size) / 2)

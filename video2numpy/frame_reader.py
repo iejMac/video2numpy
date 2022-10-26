@@ -41,36 +41,20 @@ class FrameReader:
             refs = list(range(self.n_vids))
         vid_refs = list(zip(vids, refs))
 
-        random.shuffle(
-            vid_refs
-        )  # shuffle videos so each shard has approximately equal sum of video lengths
+        random.shuffle(vid_refs)  # shuffle videos so each shard has approximately equal sum of video lengths
 
         memory_size_b = int(memory_size * 1024**3)  # GB -> bytes
-        shared_blocks = memory_size_b // (
-            resize_size**2 * 3 * (1 if batch_size == -1 else batch_size)
-        )
+        shared_blocks = memory_size_b // (resize_size**2 * 3 * (1 if batch_size == -1 else batch_size))
         dim12 = (shared_blocks,) if batch_size == -1 else (shared_blocks, batch_size)
-        self.shared_queue = SharedQueue.from_shape(
-            [*dim12, resize_size, resize_size, 3]
-        )
+        self.shared_queue = SharedQueue.from_shape([*dim12, resize_size, resize_size, 3])
 
         div_vids = [
-            vid_refs[
-                int(self.n_vids * i / workers) : int(self.n_vids * (i + 1) / workers)
-            ]
-            for i in range(workers)
+            vid_refs[int(self.n_vids * i / workers) : int(self.n_vids * (i + 1) / workers)] for i in range(workers)
         ]
 
         self.procs = [
             multiprocessing.Process(
-                args=(
-                    work,
-                    worker_id,
-                    take_every_nth,
-                    resize_size,
-                    batch_size,
-                    self.shared_queue.export(),
-                ),
+                args=(work, worker_id, take_every_nth, resize_size, batch_size, self.shared_queue.export()),
                 daemon=True,
                 target=read_vids,
             )

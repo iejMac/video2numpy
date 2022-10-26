@@ -34,9 +34,7 @@ class SharedQueue:
         return self
 
     @classmethod
-    def from_export(
-        cls, frame_name, frame_shape, indices, write_index_lock, read_index_lock
-    ):
+    def from_export(cls, frame_name, frame_shape, indices, write_index_lock, read_index_lock):
         self = cls()
         self.frame_mem = SharedMemory(create=False, name=frame_name)
         self.frame = np.ndarray(frame_shape, dtype=np.uint8, buffer=self.frame_mem.buf)
@@ -46,13 +44,7 @@ class SharedQueue:
         return self
 
     def export(self):
-        return (
-            self.frame_mem.name,
-            self.frame.shape,
-            self.indices,
-            self.write_index_lock,
-            self.read_index_lock,
-        )
+        return self.frame_mem.name, self.frame.shape, self.indices, self.write_index_lock, self.read_index_lock
 
     def get(self):
         while True:
@@ -60,10 +52,7 @@ class SharedQueue:
                 while not self:
                     time.sleep(1)
                 info, start, end = self.indices.pop(0)
-            return (
-                self.frame[start:end].copy(),
-                info,
-            )  # local clone, so share can be safely edited
+            return self.frame[start:end].copy(), info  # local clone, so share can be safely edited
 
     def _free_memory(self, size: int) -> typing.Optional[typing.Tuple[int, int, int]]:
         if not self:
@@ -83,20 +72,14 @@ class SharedQueue:
                 return
             idx, start, end = indices
             self.indices.insert(idx, (info, start, end))
-        self.frame[start:end] = obj[
-            :
-        ]  # we simply assume that the synchronisation overheads make the reader slower
+        self.frame[start:end] = obj[:]  # we simply assume that the synchronisation overheads make the reader slower
 
     def put(self, obj: np.ndarray, info: dict):
         """Put array on queue."""
         batches = obj.shape[0]
-        max_size = (
-            self.frame.shape[0] // 4
-        )  # unrealistic that it'll fit if it takes up 25% of the memory
+        max_size = self.frame.shape[0] // 4  # unrealistic that it'll fit if it takes up 25% of the memory
         if batches > max_size:
-            for idx in range(
-                0, batches, max_size
-            ):  # ... so we slice it up and feed in many smaller videos
+            for idx in range(0, batches, max_size):  # ... so we slice it up and feed in many smaller videos
                 self.put(obj[idx : idx + max_size], info)
             return
 

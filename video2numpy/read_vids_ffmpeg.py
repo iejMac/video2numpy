@@ -48,12 +48,8 @@ def read_vids(vids, worker_id, take_every_nth, resize_size, batch_size, queue_ex
             print(f"Error: couldn't read video {vid}")
             return
 
-        f_ct = int(
-            len(out) / (resize_size * resize_size * 3)
-        )  # can do this since dtype = np.uint8 (byte)
-        np_frames = np.frombuffer(out, np.uint8).reshape(
-            (f_ct, resize_size, resize_size, 3)
-        )
+        f_ct = int(len(out) / (resize_size * resize_size * 3))  # can do this since dtype = np.uint8 (byte)
+        np_frames = np.frombuffer(out, np.uint8).reshape((f_ct, resize_size, resize_size, 3))
         pad_by = 0
         if batch_size != -1:
             pad_by = (batch_size - f_ct % batch_size) % batch_size
