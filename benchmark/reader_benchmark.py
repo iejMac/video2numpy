@@ -20,7 +20,12 @@ def parse_args():
         default="default",  # TODO: maybe find nice way of getting reading type (cv2)
         help="For unique output graph file name",
     )
-    parser.add_argument("--resize_size", type=int, default=224, help="Resize frames to resize_size x resize_size")
+    parser.add_argument(
+        "--resize_size",
+        type=int,
+        default=224,
+        help="Resize frames to resize_size x resize_size",
+    )
     parser.add_argument(
         "--workers",
         type=int,

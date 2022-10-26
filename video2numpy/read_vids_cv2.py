@@ -9,7 +9,9 @@ from .shared_queue import SharedQueue
 from .utils import handle_url
 
 
-def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queue_export):
+def read_vids(
+    vid_refs, worker_id, take_every_nth, resize_size, batch_size, queue_export
+):
     """
     Reads list of videos, saves frames to Shared Queue
 
@@ -59,7 +61,7 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
             print(f"Warning: {vid} contained 0 frames")
             return
 
-        np_frames = np.array(video_frames)[:,:,:,::-1] # BGR to RGB conversion
+        np_frames = np.array(video_frames)[:, :, :, ::-1]  # BGR to RGB conversion
         f_ct = np_frames.shape[0]
         pad_by = 0
         if batch_size != -1:

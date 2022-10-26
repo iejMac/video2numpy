@@ -19,7 +19,9 @@ def test_reader():
     resize_size = 150
     batch_size = 5
 
-    reader = FrameReader(vids, None, take_every_nth, resize_size, batch_size, memory_size=0.128)
+    reader = FrameReader(
+        vids, None, take_every_nth, resize_size, batch_size, memory_size=0.128
+    )
     reader.start_reading()
 
     for vid_frames, info in reader:
