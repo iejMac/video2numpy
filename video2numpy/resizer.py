@@ -34,4 +34,5 @@ class Resizer:
 
         cropped = resized[my : resized.shape[0] - my, mx : resized.shape[1] - mx]
         cropped = cropped[: self.to_size, : self.to_size]  # safety from approx.
+
         return cropped
