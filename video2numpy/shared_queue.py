@@ -13,11 +13,15 @@ import numpy as np
 
 
 def return_false():
-        return False
+    return False
 
 
-def call_with(contexts: list, fn: typing.Callable[[], None], cond_fn: typing.Callable[[], bool] = return_false,
-              retry: typing.Union[bool, int] = False):
+def call_with(
+    contexts: list,
+    fn: typing.Callable[[], None],
+    cond_fn: typing.Callable[[], bool] = return_false,
+    retry: typing.Union[bool, int] = False,
+):
     """
     Used to call a function with multiple context objects (for example, 4 multiprocessing locks) while ensuring a
     condition stays false before entering the next context.
@@ -49,6 +53,7 @@ def call_with(contexts: list, fn: typing.Callable[[], None], cond_fn: typing.Cal
             if retry == -1:
                 raise exc
 
+
 class Timeout(multiprocessing.TimeoutError):
     pass
 
@@ -69,7 +74,6 @@ class ListQueue:
         self.read_lock = manager.RLock()
         self.cond = manager.Condition(manager.Lock())
         self.timeout = timeout
-
 
     def get(self):
         with self.read_lock:
@@ -128,7 +132,7 @@ class FiFoSemaphore:
     Exit
     """
 
-    def __init__(self, value: int = 1, timeout: int = 0):
+    def __init__(self, value: int = 1, timeout: float = 0):
         manager = multiprocessing.Manager()
         self._cond = multiprocessing.Condition(multiprocessing.Lock())
         self._value = manager.list([value])
@@ -190,7 +194,7 @@ class SharedQueue:
     index_queue: ListQueue
 
     @classmethod
-    def from_shape(cls, *shape: int, dtype: np.dtype = np.uint8, timeout: float = 1, retry: bool = True):
+    def from_shape(cls, *shape: int, dtype: np.dtype = np.dtype(np.uint8), timeout: float = 1.0, retry: bool = True):
         self = cls()
         self.data_mem = SharedMemory(create=True, size=np.zeros(shape, dtype=dtype).nbytes)
         self.data = np.ndarray(shape, dtype=dtype, buffer=self.data_mem.buf)
@@ -219,7 +223,7 @@ class SharedQueue:
     def get(self):
         ret = call_with([self.lock()], self._get_data, retry=self.retry)
         if self.index_queue.lock_writing.value and not self:
-            self.index_queue.lock_writing.value=False
+            self.index_queue.lock_writing.value = False
             time.sleep(1)
         return ret
 
@@ -230,7 +234,7 @@ class SharedQueue:
 
         if max_end - min_start > 0.75 * self.data.shape[0]:
             self.index_queue.lock_writing.value = True
-        self.data[:max_end - min_start] = self.data[min_start:max_end]
+        self.data[: max_end - min_start] = self.data[min_start:max_end]
         self.index_queue.list[:] = [(start - min_start, end - min_start, info) for start, end, info in local_list]
 
     def _put_item(self, obj: np.ndarray, info: dict):
