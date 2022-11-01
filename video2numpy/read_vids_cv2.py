@@ -5,7 +5,7 @@ import numpy as np
 import random
 
 from .resizer import Resizer
-from .shared_queue import SharedQueue
+from .shared_queue import SimpleSharedQueue
 from .utils import handle_url
 
 
@@ -21,7 +21,7 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
       batch_size - max length of frame sequence to put on shared_queue (-1 = no max).
       queue_export - SharedQueue export used re-create SharedQueue object in worker
     """
-    queue = SharedQueue.from_export(*queue_export)
+    queue = SimpleSharedQueue.from_export(*queue_export)
     t0 = time.perf_counter()
     print(f"Worker #{worker_id} starting processing {len(vid_refs)} videos")
 

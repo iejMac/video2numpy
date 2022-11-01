@@ -2,10 +2,10 @@
 import multiprocessing
 import random
 import time
+import numpy as np
 
 from .read_vids_cv2 import read_vids
-from .shared_queue import SharedQueue
-
+from .shared_queue import SimpleSharedQueue
 
 class FrameReader:
     """
@@ -46,7 +46,7 @@ class FrameReader:
         memory_size_b = int(memory_size * 1024**3)  # GB -> bytes
         shared_blocks = memory_size_b // (resize_size**2 * 3 * (1 if batch_size == -1 else batch_size))
         dim12 = (shared_blocks,) if batch_size == -1 else (shared_blocks, batch_size)
-        self.shared_queue = SharedQueue.from_shape([*dim12, resize_size, resize_size, 3])
+        self.shared_queue = SimpleSharedQueue.from_shape(*dim12, resize_size, resize_size, 3, timeout=60, retry=True)
 
         div_vids = [
             vid_refs[int(self.n_vids * i / workers) : int(self.n_vids * (i + 1) / workers)] for i in range(workers)
@@ -68,9 +68,12 @@ class FrameReader:
         return self
 
     def __next__(self):
-        if self.shared_queue or any(p.is_alive() for p in self.procs):
+        while not self.shared_queue and any(p.is_alive() for p in self.procs):
+            time.sleep(1)
+        if self.shared_queue:
             frames, info = self.shared_queue.get()
             return frames, info
+
         self.finish_reading()
         self.release_memory()
         raise StopIteration
@@ -87,5 +90,5 @@ class FrameReader:
         print(f"All jobs completed in {time.perf_counter() - self.t0}[s].")
 
     def release_memory(self):
-        self.shared_queue.frame_mem.unlink()
-        self.shared_queue.frame_mem.close()
+        self.shared_queue.data_mem.unlink()
+        self.shared_queue.data_mem.close()
