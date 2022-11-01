@@ -1,3 +1,4 @@
+"adapted from https://github.com/ClashLuke/SharedUtils"
 import datetime
 import multiprocessing
 import numpy as np
