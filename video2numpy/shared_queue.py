@@ -61,8 +61,6 @@ class ListQueue:
     displays tbe entire queue in order.
     """
 
-    list: multiprocessing.managers.ListProxy
-
     def __init__(self, timeout: float = 0):
         manager = multiprocessing.Manager()
         self.list = manager.list()
