@@ -63,7 +63,7 @@ class ListQueue:
 
     def __init__(self, timeout: float = 0):
         manager = multiprocessing.Manager()
-        self.list = manager.list()
+        self.list = manager.list() # type: ignore
         self.lock_writing = manager.Value(bool, False)
         self.write_lock = manager.RLock()
         self.read_lock = manager.RLock()
