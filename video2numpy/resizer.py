@@ -7,8 +7,6 @@
 import cv2
 
 import numpy as np
-import torch
-from torchvision.transforms import Normalize, Compose, RandomResizedCrop, InterpolationMode, ToTensor, Resize, CenterCrop, ToPILImage
 
 
 class Resizer:
@@ -20,14 +18,6 @@ class Resizer:
         self.from_shape = from_shape
         self.to_size = to_size
 
-        self.transform = Compose([
-            ToPILImage(),
-            Resize(224, interpolation=InterpolationMode.BICUBIC),
-            CenterCrop(224),
-        ])
-
-        '''
-
         sm_ind, bg_ind = (0, 1) if from_shape[0] < from_shape[1] else (1, 0)
         ratio = from_shape[sm_ind] / to_size
         n_shape = from_shape
@@ -35,10 +25,8 @@ class Resizer:
         n_shape[bg_ind] = max(int(n_shape[bg_ind] / ratio), to_size)  # safety for rounding errors
 
         self.resize_shape = tuple(n_shape)
-        '''
 
     def __call__(self, img):
-        '''
         # Resize:
         resized = cv2.resize(img, (self.resize_shape[1], self.resize_shape[0]), interpolation=cv2.INTER_CUBIC)
 
@@ -48,8 +36,4 @@ class Resizer:
 
         cropped = resized[my : resized.shape[0] - my, mx : resized.shape[1] - mx]
         cropped = cropped[: self.to_size, : self.to_size]  # safety from approx.
-        '''
-        cropped = self.transform(img)
-        cropped = np.array(cropped)
-
         return cropped
