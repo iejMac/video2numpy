@@ -44,7 +44,7 @@ def call_with(
         try:
             with contexts[0]:
                 return call_with(contexts[1:], fn, cond_fn, False)
-        except Exception as exc: # type: ignore [broad-except]
+        except Exception as exc:  # type: ignore [broad-except]
             if retry == -1:
                 raise exc
 
@@ -60,6 +60,8 @@ class ListQueue:
     It's used the same way as a normal queue, with the slight difference that ListQueue has a `.list` attribute which
     displays tbe entire queue in order.
     """
+
+    list: multiprocessing.managers.ListProxy
 
     def __init__(self, timeout: float = 0):
         manager = multiprocessing.Manager()
