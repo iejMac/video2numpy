@@ -175,7 +175,7 @@ class FiFoSemaphoreContext:
         self.semaphore.release(self.val)
 
 
-class SimpleSharedQueue:
+class SharedQueue:
     """
     The memory allocation is similar to the ExtQueue above, however, this queue simulates single-threaded access by
     fully locking access to the internal memory when one thread is reading or writing to it.
