@@ -1,15 +1,10 @@
 "adapted from https://github.com/ClashLuke/SharedUtils"
-import datetime
 import multiprocessing
 import numpy as np
-import threading
 import time
-import traceback
 import typing
 import uuid
 from multiprocessing.shared_memory import SharedMemory
-
-import numpy as np
 
 
 def return_false():
@@ -44,12 +39,12 @@ def call_with(
         if not contexts:
             return fn()
         if cond_fn():
-            return
+            return None
 
         try:
             with contexts[0]:
                 return call_with(contexts[1:], fn, cond_fn, False)
-        except Exception as exc:
+        except Exception as exc: # type: ignore [broad-except]
             if retry == -1:
                 raise exc
 
@@ -145,6 +140,7 @@ class FiFoSemaphore:
         return FiFoSemaphoreContext(self, val)
 
     def acquire(self, val: int = 0):
+        "acquire lock"
         job_id = uuid.uuid4()
         self._queue.put(job_id)
         if val < 1:
@@ -159,6 +155,7 @@ class FiFoSemaphore:
         return True
 
     def release(self, val: int = 0):
+        "release lock"
         if val < 1:
             val = self.max_value + val
         with self._cond:
