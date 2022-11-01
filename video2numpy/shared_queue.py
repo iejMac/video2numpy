@@ -44,7 +44,7 @@ def call_with(
         try:
             with contexts[0]:
                 return call_with(contexts[1:], fn, cond_fn, False)
-        except Exception as exc:  # type: ignore [broad-except]
+        except Exception as exc:  # pylint: disable=broad-except
             if retry == -1:
                 raise exc
 
@@ -63,7 +63,7 @@ class ListQueue:
 
     def __init__(self, timeout: float = 0):
         manager = multiprocessing.Manager()
-        self.list = manager.list() # type: ignore
+        self.list = manager.list()  # type: ignore
         self.lock_writing = manager.Value(bool, False)
         self.write_lock = manager.RLock()
         self.read_lock = manager.RLock()
