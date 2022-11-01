@@ -17,7 +17,7 @@ if __name__ == "__main__":
         name="video2numpy",
         packages=find_packages(),
         include_package_data=True,
-        version="2.3.0",
+        version="2.3.1",
         license="MIT",
         description="Video reading into numpy",
         long_description=long_description,

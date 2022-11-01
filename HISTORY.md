@@ -1,3 +1,8 @@
+## 2.3.1
+
+* Fix SharedQueue so there's no frame overwriting. The class is now simpler but might be slightly slower.
+* Transform frames from BGR -> RGB (by https://github.com/danielmend)
+
 ## 2.3.0
 
 * FrameReader can take a list of references to videos for linking to related data on the other end of video2numpy (f.e. index in csv or parquet)
