@@ -1,7 +1,7 @@
 """video2numpy utils"""
 import requests
 import tempfile
-import youtube_dl
+import yt_dlp
 
 
 QUALITY = "360p"
@@ -10,7 +10,7 @@ QUALITY = "360p"
 def handle_youtube(youtube_url):
     """returns file and destination name from youtube url."""
     ydl_opts = {}
-    ydl = youtube_dl.YoutubeDL(ydl_opts)
+    ydl = yt_dlp.YoutubeDL(ydl_opts)
     info = ydl.extract_info(youtube_url, download=False)
     formats = info.get("formats", None)
     f = None
