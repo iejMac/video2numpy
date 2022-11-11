@@ -2,22 +2,32 @@
 import requests
 import tempfile
 import yt_dlp
-
+# from yt_dlp.utils import download_range_func
 
 QUALITY = "360p"
 
 
 def handle_youtube(youtube_url):
     """returns file and destination name from youtube url."""
-    ydl_opts = {}
+    '''
+    ydl_opts = {
+        "download_ranges": download_range_func(None, [(0, 5)])
+    }
+    '''
+    # ydl_opts = {}
+    ydl_opts = {"format": "bestvideo*+bestaudio/best"}
+
     ydl = yt_dlp.YoutubeDL(ydl_opts)
-    info = ydl.extract_info(youtube_url, download=False)
+    info = ydl.extract_info(youtube_url, download=False, force_generic_extractor=True)
     formats = info.get("formats", None)
+
     f = None
     for f in formats:
-        if f.get("format_note", None) != QUALITY:
+        # if f.get("format_note", None) != QUALITY:
+        if f.get("vcodec", None) == 'none':
             continue
         break
+    print(f)
 
     cv2_vid = f.get("url", None)
     dst_name = info.get("id") + ".npy"
