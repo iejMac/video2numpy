@@ -36,9 +36,7 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
             load_vid, file, dst_name = vid, None, vid[:-4].split("/")[-1] + ".npy"
 
         video_frames = []
-
         time_0 = time.time()
-        print(f"reading {vid}")
 
         cap = cv2.VideoCapture(load_vid)  # pylint: disable=I1101
 
