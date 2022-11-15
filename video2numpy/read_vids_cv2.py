@@ -9,7 +9,7 @@ from .shared_queue import SharedQueue
 from .utils import handle_url
 
 
-MAX_RETRY = 2 # TODO: do this better, maybe param for this
+MAX_RETRY = 2  # TODO: do this better, maybe param for this
 
 
 def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queue_export):
@@ -42,8 +42,8 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
 
         fps = cap.get(cv2.CAP_PROP_FPS)
         frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        minutes = (frame_count/fps)/60
-        timeout = minutes # acceptable reading speed is 1 [min downloaded/s]
+        minutes = (frame_count / fps) / 60
+        timeout = minutes  # acceptable reading speed is 1 [min downloaded/s]
 
         if not cap.isOpened():
             print(f"Error: {vid} not opened")
@@ -59,7 +59,7 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
         ind = 0
         while ret:
             ret = cap.grab()
-            if time.time() - time_0 > timeout: # timeout if taking too long (maybe try another format)
+            if time.time() - time_0 > timeout:  # timeout if taking too long (maybe try another format)
                 raise TimeoutError
             if ret and (ind % take_every_nth == 0):
                 ret, frame = cap.retrieve()
@@ -96,7 +96,7 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
             try:
                 get_frames(vid, ref, retry)
                 break
-            except TimeoutError as te:
+            except TimeoutError as _:
                 print(f"TimeoutError: {vid} timed out")
                 retry += 1
             except Exception as e:  # pylint: disable=broad-except

@@ -11,16 +11,17 @@ def get_format_selector(retry):
     """
     Gets format selector based on retry number.
     """
+
     def format_selector(ctx):
-        formats = ctx.get('formats')
+        formats = ctx.get("formats")
         if retry == 0:
             for f in formats:
                 if f.get("format_note", None) != QUALITY:
                     continue
                 break
         else:
-            for f in formats: # take WORST video format available
-                if f.get("vcodec", None) == 'none':
+            for f in formats:  # take WORST video format available
+                if f.get("vcodec", None) == "none":
                     continue
                 break
         yield {
@@ -29,6 +30,7 @@ def get_format_selector(retry):
             "requested_formats": [f],
             "protocol": f["protocol"],
         }
+
     return format_selector
 
 
@@ -59,7 +61,7 @@ def handle_mp4_link(mp4_link):
     return ntf, dst_name
 
 
-def handle_url(url, retry):
+def handle_url(url, retry=0):
     """
     Input:
         url: url of video
