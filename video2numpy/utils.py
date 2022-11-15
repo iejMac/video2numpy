@@ -6,48 +6,44 @@ import yt_dlp
 
 QUALITY = "360p"
 
+# TODO make this better / audio support
 def get_format_selector(retry):
-
+    """
+    Gets format selector based on retry number.
+    """
     def format_selector(ctx):
-
         formats = ctx.get('formats')
-        for f in formats:
-            if f.get("format_note", None) != QUALITY:
-            # if f.get("vcodec", None) == 'none':
-                continue
-            break
-        
+        if retry == 0:
+            for f in formats:
+                if f.get("format_note", None) != QUALITY:
+                    continue
+                break
+        else:
+            for f in formats: # take WORST video format available
+                if f.get("vcodec", None) == 'none':
+                    continue
+                break
         yield {
             "format_id": f["format_id"],
             "ext": f["ext"],
             "requested_formats": [f],
             "protocol": f["protocol"],
         }
-
     return format_selector
 
 
 def handle_youtube(youtube_url, retry):
     """returns file and destination name from youtube url."""
 
-    ydl_opts = {"format": get_format_selector(retry)}
+    ydl_opts = {
+        "quiet": True,
+        "format": get_format_selector(retry),
+    }
 
     ydl = yt_dlp.YoutubeDL(ydl_opts)
     info = ydl.extract_info(youtube_url, download=False)
-    # print(info.keys())
-    # formats = info.get("formats", None)
     formats = info.get("requested_formats", None)
     f = formats[0]
-
-    '''
-    f = None
-    for f in formats:
-        # if f.get("format_note", None) != QUALITY:
-        if f.get("vcodec", None) == 'none':
-            continue
-        break
-    '''
-    # print(f)
 
     cv2_vid = f.get("url", None)
     dst_name = info.get("id") + ".npy"

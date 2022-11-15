@@ -9,6 +9,9 @@ from .shared_queue import SharedQueue
 from .utils import handle_url
 
 
+MAX_RETRY = 2 # TODO: do this better, maybe param for this
+
+
 def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queue_export):
     """
     Reads list of videos, saves frames to Shared Queue
@@ -37,16 +40,12 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
         time_0 = time.time()
         print(f"reading {vid}")
 
-
         cap = cv2.VideoCapture(load_vid)  # pylint: disable=I1101
 
         fps = cap.get(cv2.CAP_PROP_FPS)
         frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         minutes = (frame_count/fps)/60
-        timeout = 2 * minutes 
-
-        print(f"video is {minutes} long")
-
+        timeout = minutes # acceptable reading speed is 1 [min downloaded/s]
 
         if not cap.isOpened():
             print(f"Error: {vid} not opened")
@@ -66,13 +65,9 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
                 raise TimeoutError
             if ret and (ind % take_every_nth == 0):
                 ret, frame = cap.retrieve()
-                # frame = resizer(frame)
-                # video_frames.append(frame)
+                frame = resizer(frame)
+                video_frames.append(frame)
             ind += 1
-
-        print(f"reading {vid} took {time.time() - time_0}")
-            
-        return
 
         if len(video_frames) == 0:
             print(f"Warning: {vid} contained 0 frames")
@@ -98,15 +93,14 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
 
     random.Random(worker_id).shuffle(vid_refs)
     for vid, ref in vid_refs:
-
-        retry = 2 # TODO: maybe parameterisze this
-        while retry:
+        retry = 0
+        while retry < MAX_RETRY:
             try:
                 get_frames(vid, ref, retry)
                 break
             except TimeoutError as te:
                 print(f"TimeoutError: {vid} timed out")
-                retry -= 1
+                retry += 1
             except Exception as e:  # pylint: disable=broad-except
                 print(f"Error: Video {vid} failed with message - {e}")
                 break
