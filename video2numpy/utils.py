@@ -2,32 +2,52 @@
 import requests
 import tempfile
 import yt_dlp
-# from yt_dlp.utils import download_range_func
+
 
 QUALITY = "360p"
 
+def get_format_selector(retry):
 
-def handle_youtube(youtube_url):
+    def format_selector(ctx):
+
+        formats = ctx.get('formats')
+        for f in formats:
+            if f.get("format_note", None) != QUALITY:
+            # if f.get("vcodec", None) == 'none':
+                continue
+            break
+        
+        yield {
+            "format_id": f["format_id"],
+            "ext": f["ext"],
+            "requested_formats": [f],
+            "protocol": f["protocol"],
+        }
+
+    return format_selector
+
+
+def handle_youtube(youtube_url, retry):
     """returns file and destination name from youtube url."""
-    '''
-    ydl_opts = {
-        "download_ranges": download_range_func(None, [(0, 5)])
-    }
-    '''
-    # ydl_opts = {}
-    ydl_opts = {"format": "bestvideo*+bestaudio/best"}
+
+    ydl_opts = {"format": get_format_selector(retry)}
 
     ydl = yt_dlp.YoutubeDL(ydl_opts)
-    info = ydl.extract_info(youtube_url, download=False, force_generic_extractor=True)
-    formats = info.get("formats", None)
+    info = ydl.extract_info(youtube_url, download=False)
+    # print(info.keys())
+    # formats = info.get("formats", None)
+    formats = info.get("requested_formats", None)
+    f = formats[0]
 
+    '''
     f = None
     for f in formats:
         # if f.get("format_note", None) != QUALITY:
         if f.get("vcodec", None) == 'none':
             continue
         break
-    print(f)
+    '''
+    # print(f)
 
     cv2_vid = f.get("url", None)
     dst_name = info.get("id") + ".npy"
@@ -43,7 +63,7 @@ def handle_mp4_link(mp4_link):
     return ntf, dst_name
 
 
-def handle_url(url):
+def handle_url(url, retry):
     """
     Input:
         url: url of video
@@ -54,7 +74,7 @@ def handle_url(url):
         name - numpy fname to save frames to.
     """
     if "youtube" in url:  # youtube link
-        load_file, name = handle_youtube(url)
+        load_file, name = handle_youtube(url, retry)
         return load_file, None, name
     elif url.endswith(".mp4"):  # mp4 link
         file, name = handle_mp4_link(url)

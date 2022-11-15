@@ -25,15 +25,28 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
     t0 = time.perf_counter()
     print(f"Worker #{worker_id} starting processing {len(vid_refs)} videos")
 
-    def get_frames(vid, ref):
+    def get_frames(vid, ref, retry=0):
         # TODO: better way of testing if vid is url
         if vid.startswith("http://") or vid.startswith("https://"):
-            load_vid, file, dst_name = handle_url(vid)
+            load_vid, file, dst_name = handle_url(vid, retry)
         else:
             load_vid, file, dst_name = vid, None, vid[:-4].split("/")[-1] + ".npy"
 
         video_frames = []
+
+        time_0 = time.time()
+        print(f"reading {vid}")
+
+
         cap = cv2.VideoCapture(load_vid)  # pylint: disable=I1101
+
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        minutes = (frame_count/fps)/60
+        timeout = 2 * minutes 
+
+        print(f"video is {minutes} long")
+
 
         if not cap.isOpened():
             print(f"Error: {vid} not opened")
@@ -49,11 +62,17 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
         ind = 0
         while ret:
             ret = cap.grab()
+            if time.time() - time_0 > timeout: # timeout if taking too long (maybe try another format)
+                raise TimeoutError
             if ret and (ind % take_every_nth == 0):
                 ret, frame = cap.retrieve()
-                frame = resizer(frame)
-                video_frames.append(frame)
+                # frame = resizer(frame)
+                # video_frames.append(frame)
             ind += 1
+
+        print(f"reading {vid} took {time.time() - time_0}")
+            
+        return
 
         if len(video_frames) == 0:
             print(f"Warning: {vid} contained 0 frames")
@@ -79,9 +98,18 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
 
     random.Random(worker_id).shuffle(vid_refs)
     for vid, ref in vid_refs:
-        try:
-            get_frames(vid, ref)
-        except Exception as e:  # pylint: disable=broad-except
-            print(f"Error: Video {vid} failed with message - {e}")
+
+        retry = 2 # TODO: maybe parameterisze this
+        while retry:
+            try:
+                get_frames(vid, ref, retry)
+                break
+            except TimeoutError as te:
+                print(f"TimeoutError: {vid} timed out")
+                retry -= 1
+            except Exception as e:  # pylint: disable=broad-except
+                print(f"Error: Video {vid} failed with message - {e}")
+                break
+            print("retrying...")
     tf = time.perf_counter()
     print(f"Worker #{worker_id} done processing {len(vid_refs)} videos in {tf-t0}[s]")
