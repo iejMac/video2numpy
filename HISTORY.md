@@ -1,3 +1,7 @@
+## 2.3.2
+
+* Fix slow youtube downloading by introducing timeout with retry and alternative format selection (initial version, will be iterated on).
+
 ## 2.3.1
 
 * Fix SharedQueue so there's no frame overwriting. The class is now simpler but might be slightly slower.
