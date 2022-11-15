@@ -43,7 +43,7 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
         fps = cap.get(cv2.CAP_PROP_FPS)
         frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         minutes = (frame_count / fps) / 60
-        timeout = minutes  # acceptable reading speed is 1 [min downloaded/s]
+        timeout = max(minutes, 0.5)  # acceptable reading speed is 1 [min downloaded/s]
 
         if not cap.isOpened():
             print(f"Error: {vid} not opened")
