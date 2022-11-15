@@ -6,18 +6,46 @@ import yt_dlp
 
 QUALITY = "360p"
 
+# TODO make this better / audio support
+def get_format_selector(retry):
+    """
+    Gets format selector based on retry number.
+    """
 
-def handle_youtube(youtube_url):
+    def format_selector(ctx):
+        formats = ctx.get("formats")
+        if retry == 0:
+            for f in formats:
+                if f.get("format_note", None) != QUALITY:
+                    continue
+                break
+        else:
+            for f in formats:  # take WORST video format available
+                if f.get("vcodec", None) == "none":
+                    continue
+                break
+        yield {
+            "format_id": f["format_id"],
+            "ext": f["ext"],
+            "requested_formats": [f],
+            "protocol": f["protocol"],
+        }
+
+    return format_selector
+
+
+def handle_youtube(youtube_url, retry):
     """returns file and destination name from youtube url."""
-    ydl_opts = {}
+
+    ydl_opts = {
+        "quiet": True,
+        "format": get_format_selector(retry),
+    }
+
     ydl = yt_dlp.YoutubeDL(ydl_opts)
     info = ydl.extract_info(youtube_url, download=False)
-    formats = info.get("formats", None)
-    f = None
-    for f in formats:
-        if f.get("format_note", None) != QUALITY:
-            continue
-        break
+    formats = info.get("requested_formats", None)
+    f = formats[0]
 
     cv2_vid = f.get("url", None)
     dst_name = info.get("id") + ".npy"
@@ -33,7 +61,7 @@ def handle_mp4_link(mp4_link):
     return ntf, dst_name
 
 
-def handle_url(url):
+def handle_url(url, retry=0):
     """
     Input:
         url: url of video
@@ -44,7 +72,7 @@ def handle_url(url):
         name - numpy fname to save frames to.
     """
     if "youtube" in url:  # youtube link
-        load_file, name = handle_youtube(url)
+        load_file, name = handle_youtube(url, retry)
         return load_file, None, name
     elif url.endswith(".mp4"):  # mp4 link
         file, name = handle_mp4_link(url)
