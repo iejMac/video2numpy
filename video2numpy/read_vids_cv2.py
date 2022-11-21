@@ -9,9 +9,6 @@ from .shared_queue import SharedQueue
 from .utils import handle_url
 
 
-MAX_RETRY = 2  # TODO: do this better, maybe param for this
-
-
 def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queue_export):
     """
     Reads list of videos, saves frames to Shared Queue
