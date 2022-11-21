@@ -6,9 +6,6 @@ import yt_dlp
 from timeout_decorator import timeout, TimeoutError
 
 
-QUALITY = "360p"
-
-
 def get_fast_format(formats, find_format_timeout):
     """returns the closest format that downloads quickly"""
 
