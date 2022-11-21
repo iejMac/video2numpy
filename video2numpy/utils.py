@@ -8,6 +8,32 @@ from timeout_decorator import timeout, TimeoutError
 
 QUALITY = "360p"
 
+# TODO make this better / audio support
+def get_format_selector(retry):
+    """
+    Gets format selector based on retry number.
+    """
+
+    def format_selector(ctx):
+        formats = ctx.get("formats")
+        if retry == 0:
+            for f in formats:
+                if f.get("format_note", None) != QUALITY:
+                    continue
+                break
+        else:
+            for f in formats:  # take WORST video format available
+                if f.get("vcodec", None) == "none":
+                    continue
+                break
+        yield {
+            "format_id": f["format_id"],
+            "ext": f["ext"],
+            "requested_formats": [f],
+            "protocol": f["protocol"],
+        }
+
+    return format_selector
 
 def get_fast_format(formats, find_format_timeout):
     """returns the closest format that downloads quickly"""
@@ -75,7 +101,7 @@ def handle_mp4_link(mp4_link):
     return ntf, dst_name
 
 
-def handle_url(url):
+def handle_url(url, retry=0):
     """
     Input:
         url: url of video
@@ -88,6 +114,7 @@ def handle_url(url):
     if "youtube" in url:  # youtube link
         file, name = handle_youtube(url)
         return file, None, name
+
     elif url.endswith(".mp4"):  # mp4 link
         file, name = handle_mp4_link(url)
         return file.name, file, name
