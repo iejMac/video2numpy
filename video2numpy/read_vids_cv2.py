@@ -19,7 +19,7 @@ def read_vids(vid_refs, worker_id, target_fps, resize_size, batch_size, queue_ex
     Input:
       vid_refs - list of videos (either path or youtube link) and their references
       worker_id - unique ID of worker
-      target_fps - what fps to decode the videos at
+      target_fps - what fps to decode the videos at (-1 means unaltered fps)
       resize_size - new pixel height and width of resized frame
       batch_size - max length of frame sequence to put on shared_queue (-1 = no max).
       queue_export - SharedQueue export used re-create SharedQueue object in worker
@@ -48,7 +48,7 @@ def read_vids(vid_refs, worker_id, target_fps, resize_size, batch_size, queue_ex
         timeout *= (res / 360.0)  # give more time for longer vids
         timeout *= 10
 
-        skip_frames = int(fps/target_fps)
+        skip_frames = int(fps/target_fps) if fps > target_fps else 1
 
         if not cap.isOpened():
             print(f"Error: {vid} not opened")

@@ -16,7 +16,7 @@ class FrameReader:
         self,
         vids,
         refs=None,
-        take_every_nth=1,
+        target_fps=-1,
         resize_size=224,
         batch_size=-1,
         workers=1,
@@ -28,7 +28,7 @@ class FrameReader:
           refs - list with refrences to other data for each video (could correspondance to metadata in other file).
                  if None, refs = index of video
           chunk_size - how many videos to process at once.
-          take_every_nth - offset between frames we take.
+          target_fps - target decoding fps (-1 if unaltered)
           resize_size - pixel height and width of target output shape.
           batch_size - max length of frame sequence to put on shared_queue (-1 = no max).
           workers - number of Processes to distribute video reading to.
@@ -54,7 +54,7 @@ class FrameReader:
 
         self.procs = [
             multiprocessing.Process(
-                args=(work, worker_id, take_every_nth, resize_size, batch_size, self.shared_queue.export()),
+                args=(work, worker_id, target_fps, resize_size, batch_size, self.shared_queue.export()),
                 daemon=True,
                 target=read_vids,
             )
