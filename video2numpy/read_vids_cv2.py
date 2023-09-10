@@ -12,14 +12,14 @@ from .utils import handle_url
 MAX_RETRY = 2  # TODO: do this better, maybe param for this
 
 
-def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queue_export):
+def read_vids(vid_refs, worker_id, target_fps, resize_size, batch_size, queue_export):
     """
     Reads list of videos, saves frames to Shared Queue
 
     Input:
       vid_refs - list of videos (either path or youtube link) and their references
       worker_id - unique ID of worker
-      take_every_nth - offset between frames of video (to lower FPS)
+      target_fps - what fps to decode the videos at
       resize_size - new pixel height and width of resized frame
       batch_size - max length of frame sequence to put on shared_queue (-1 = no max).
       queue_export - SharedQueue export used re-create SharedQueue object in worker
@@ -48,6 +48,8 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
         timeout *= (res / 360.0)  # give more time for longer vids
         timeout *= 10
 
+        skip_frames = int(fps/target_fps)
+
         if not cap.isOpened():
             print(f"Error: {vid} not opened")
             return
@@ -64,7 +66,7 @@ def read_vids(vid_refs, worker_id, take_every_nth, resize_size, batch_size, queu
             ret = cap.grab()
             if time.time() - time_0 > timeout:  # timeout if taking too long (maybe try another format)
                 raise TimeoutError
-            if ret and (ind % take_every_nth == 0):
+            if ret and (ind % skip_frames == 0):
                 ret, frame = cap.retrieve()
                 frame = resizer(frame)
                 video_frames.append(frame)
