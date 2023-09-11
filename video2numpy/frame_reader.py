@@ -16,6 +16,7 @@ class FrameReader:
         self,
         vids,
         refs=None,
+        take_every_nth=1,
         target_fps=-1,
         resize_size=224,
         batch_size=-1,
@@ -28,6 +29,7 @@ class FrameReader:
           refs - list with refrences to other data for each video (could correspondance to metadata in other file).
                  if None, refs = index of video
           chunk_size - how many videos to process at once.
+          take_every_nth - offset between frames we take.
           target_fps - target decoding fps (-1 if unaltered)
           resize_size - pixel height and width of target output shape.
           batch_size - max length of frame sequence to put on shared_queue (-1 = no max).

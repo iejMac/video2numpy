@@ -12,7 +12,7 @@ from .utils import handle_url
 MAX_RETRY = 2  # TODO: do this better, maybe param for this
 
 
-def read_vids(vid_refs, worker_id, target_fps, resize_size, batch_size, queue_export):
+def read_vids(vid_refs, worker_id, take_every_nth, target_fps, resize_size, batch_size, queue_export):
     """
     Reads list of videos, saves frames to Shared Queue
 
@@ -48,7 +48,10 @@ def read_vids(vid_refs, worker_id, target_fps, resize_size, batch_size, queue_ex
         timeout *= (res / 360.0)  # give more time for longer vids
         timeout *= 10
 
-        skip_frames = int(fps/target_fps) if fps > target_fps else 1
+        if target_fps != -1:
+            skip_frames = int(fps/target_fps) if fps > target_fps else 1
+        else:
+            skip_frames = take_every_nth
 
         if not cap.isOpened():
             print(f"Error: {vid} not opened")

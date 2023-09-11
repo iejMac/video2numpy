@@ -5,7 +5,7 @@ import numpy as np
 from .frame_reader import FrameReader
 
 
-def video2numpy(src, dest="", target_fps=-1, resize_size=224, workers=1, memory_size=4):
+def video2numpy(src, dest="", take_every_nth=1, target_fps=-1, resize_size=224, workers=1, memory_size=4):
     """
     Read frames from videos and save as numpy arrays
 
@@ -18,6 +18,8 @@ def video2numpy(src, dest="", target_fps=-1, resize_size=224, workers=1, memory_
     dest:
         str: directory where to save frames to
         None: dest = src + .npy
+    take_every_nth:
+        int: only take every nth frame
     target_fps:
         int: fps to decode the video at (-1 means original_fps)
     resize_size:
