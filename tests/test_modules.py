@@ -16,10 +16,11 @@ def test_reader():
     vids = glob.glob("tests/test_videos/*.mp4")
 
     take_every_nth = 1
+    target_fps = -1
     resize_size = 150
     batch_size = 5
 
-    reader = FrameReader(vids, None, take_every_nth, resize_size, batch_size, memory_size=0.128)
+    reader = FrameReader(vids, None, take_every_nth, target_fps, resize_size, batch_size, memory_size=0.128)
     reader.start_reading()
 
     for vid_frames, info in reader:
