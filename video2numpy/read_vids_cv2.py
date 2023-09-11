@@ -45,11 +45,11 @@ def read_vids(vid_refs, worker_id, take_every_nth, target_fps, resize_size, batc
         res = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         minutes = (frame_count / fps) / 60
         timeout = max(minutes, 0.5)  # acceptable reading speed is 1 [min downloaded/s]
-        timeout *= (res / 360.0)  # give more time for longer vids
+        timeout *= res / 360.0  # give more time for longer vids
         timeout *= 10
 
         if target_fps != -1:
-            skip_frames = int(fps/target_fps) if fps > target_fps else 1
+            skip_frames = int(fps / target_fps) if fps > target_fps else 1
         else:
             skip_frames = take_every_nth
 
