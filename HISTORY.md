@@ -1,3 +1,7 @@
+## 2.3.3
+
+* Add target_fps param for uniform fps reading
+
 ## 2.3.2
 
 * Fix slow youtube downloading by introducing timeout with retry and alternative format selection (initial version, will be iterated on).
