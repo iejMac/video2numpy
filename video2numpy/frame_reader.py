@@ -56,7 +56,7 @@ class FrameReader:
 
         self.procs = [
             multiprocessing.Process(
-                args=(work, worker_id, target_fps, resize_size, batch_size, self.shared_queue.export()),
+                args=(work, worker_id, take_every_nth, target_fps, resize_size, batch_size, self.shared_queue.export()),
                 daemon=True,
                 target=read_vids,
             )
